@@ -7,12 +7,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager.LayoutParams
 import android.widget.Button
 
 import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.lock.LockscreenUtils
+import com.shakuro.skylocker.model.SkyLockerManager
 
 
 class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListener {
@@ -21,7 +23,7 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
     private var btnUnlock: Button? = null
 
     // Member variables
-    private var mLockscreenUtils: LockscreenUtils? = null
+    private var lockscreenUtils: LockscreenUtils? = null
 
     // Set appropriate flags to make the screen appear over the keyguard
     override fun onAttachedToWindow() {
@@ -37,17 +39,17 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        SkyLockerManager.initInstance(this)
+
         setContentView(R.layout.activity_lockscreen)
 
         init()
 
         // unlock screen in case of app get killed by system
-        if (intent != null && intent.hasExtra("kill")
-                && intent.extras!!.getInt("kill") == 1) {
+        if (intent != null && intent.hasExtra("kill") && intent.extras!!.getInt("kill") == 1) {
             enableKeyguard()
             unlockHomeButton()
         } else {
-
             try {
                 // disable keyguard
                 disableKeyguard()
@@ -61,17 +63,15 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
                 // listen the events get fired during the call
                 val phoneStateListener = StateListener()
                 val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                telephonyManager.listen(phoneStateListener,
-                        PhoneStateListener.LISTEN_CALL_STATE)
-
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
             } catch (e: Exception) {
+                Log.e("", e.toString())
             }
-
         }
     }
 
     private fun init() {
-        mLockscreenUtils = LockscreenUtils()
+        lockscreenUtils = LockscreenUtils()
         btnUnlock = findViewById(R.id.btnUnlock) as Button
         btnUnlock!!.setOnClickListener {
             // unlock home button and then screen on button press
@@ -133,12 +133,12 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
     // Lock home button
     fun lockHomeButton() {
-        mLockscreenUtils!!.lock(this@LockScreenActivity)
+        lockscreenUtils!!.lock(this@LockScreenActivity)
     }
 
     // Unlock home button and wait for its callback
     fun unlockHomeButton() {
-        mLockscreenUtils!!.unlock()
+        lockscreenUtils!!.unlock()
     }
 
     // Simply unlock device when home button is successfully unlocked

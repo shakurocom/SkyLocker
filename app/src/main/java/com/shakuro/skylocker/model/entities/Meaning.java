@@ -27,6 +27,8 @@ public class Meaning {
     @NotNull
     private String translation;
 
+    private String definition;
+
     private long viewsCounter;
 
     private long failsCounter;
@@ -44,13 +46,14 @@ public class Meaning {
     @Generated(hash = 1973883728)
     private transient MeaningDao myDao;
 
-    @Generated(hash = 721736358)
+    @Generated(hash = 1896307885)
     public Meaning(Long id, @NotNull Long wordId, String text, @NotNull String translation,
-            long viewsCounter, long failsCounter, long addedByUserWithId) {
+            String definition, long viewsCounter, long failsCounter, long addedByUserWithId) {
         this.id = id;
         this.wordId = wordId;
         this.text = text;
         this.translation = translation;
+        this.definition = definition;
         this.viewsCounter = viewsCounter;
         this.failsCounter = failsCounter;
         this.addedByUserWithId = addedByUserWithId;
@@ -186,6 +189,14 @@ public class Meaning {
 
     public void setFailsCounter(long failsCounter) {
         this.failsCounter = failsCounter;
+    }
+
+    public String getDefinition() {
+        return this.definition;
+    }
+
+    public void setDefinition(String definition) {
+        this.definition = definition;
     }
 
     /** called by internal mechanisms, do not call yourself. */

@@ -8,18 +8,19 @@ import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Query
 
-data class SkyEngTranslation(val text: String)
+data class SkyEngTranslation(val text: String?)
 
 data class SkyEngAlternativeTranslation(
-        val text: String,
-        val translation: SkyEngTranslation)
+        val text: String?,
+        val translation: SkyEngTranslation?)
 
 data class SkyEngMeaning(
         val id: Long,
         val text: String?,
         val wordId: Long?,
         val translation: SkyEngTranslation?,
-        val alternativeTranslations: MutableList<SkyEngAlternativeTranslation>)
+        val definition: SkyEngTranslation?,
+        val alternativeTranslations: MutableList<SkyEngAlternativeTranslation>?)
 
 data class SkyEngWord(
         val id: Long,
