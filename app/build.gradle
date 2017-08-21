@@ -3,16 +3,25 @@ apply plugin: 'kotlin-android'
 apply plugin: "kotlin-android-extensions"
 apply plugin: 'org.greenrobot.greendao'
 
+repositories {
+    maven() {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId 'com.shakuro.skylocker'
-        minSdkVersion 9
-        targetSdkVersion 9
+        minSdkVersion 12
+        targetSdkVersion 12
         versionCode 1
         versionName "1.0"
+
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
     }
 
     sourceSets {
@@ -49,5 +58,6 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile "com.squareup.retrofit2:converter-moshi:2.0.0"
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'org.apmem.tools:layouts:1.0@aar'
+    compile "commons-io:commons-io:2.4"
+    compile 'org.apmem.tools:layouts:1.9@aar'
 }

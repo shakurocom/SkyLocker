@@ -1,31 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/yellow"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin" >
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/overlayColor" />
 
     <TextView
-        android:id="@+id/tvInstructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/instructions"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textColor="@color/black" />
+        android:id="@+id/wordTextView"
+        android:textSize="40sp"
+        android:textStyle="normal"
+        android:textColor="#deffffff"
+        android:lineSpacingExtra="4sp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/definitionTextView"
+        />
 
-    <Button
-        android:id="@+id/btnUnlock"
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:layout_below="@id/tvInstructions"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/selector_bg_btn_unlock"
-        android:text="@string/unlock"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:textColor="@color/selector_txt_btn_unlock" />
+        android:id="@+id/definitionTextView"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:textColor="#deffffff"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/flowLayout" />
 
-</RelativeLayout>
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_lock_with_bg"
+        android:scaleType="fitXY"
+        android:id="@+id/lockView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <org.apmem.tools.layouts.FlowLayout
+        android:orientation="horizontal"
+        android:gravity="fill"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/flowLayout"
+        android:layout_marginBottom="14dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/skipQuizView" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:textColor="#deffffff"
+        android:gravity="center"
+        android:text="@string/skip_quiz"
+        app:layout_constraintBottom_toBottomOf="@+id/skipQuizView"
+        app:layout_constraintTop_toTopOf="@+id/skipQuizView" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="152dp"
+        android:background="@drawable/dashed_bg"
+        android:layout_marginBottom="9dp"
+        android:layout_marginLeft="9dp"
+        android:layout_marginRight="9dp"
+        android:layout_marginEnd="9dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/skipQuizView" />
+
+</android.support.constraint.ConstraintLayout>

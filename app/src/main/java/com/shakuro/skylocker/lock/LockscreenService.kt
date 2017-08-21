@@ -22,7 +22,7 @@ class LockscreenService : Service() {
     }
 
     // Register for Lockscreen event intents
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
         filter.addAction(Intent.ACTION_SCREEN_OFF)
         mReceiver = LockscreenIntentReceiver()
