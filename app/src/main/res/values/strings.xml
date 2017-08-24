@@ -1,9 +1,27 @@
 <resources>
     <string name="app_name">SkyLocker</string>
+    <string name="app_name_bold"><b>SkyLocker</b></string>
     <string name="title_activity_kotlin">Kotlin activity</string>
     <string name="instructions">Click on UNLOCK button to unlock the screen</string>
     <string name="unlock">UNLOCK</string>
     <string name="settings">Settings</string>
     <string name="skip_quiz">To skip the quiz, drag here</string>
-
+    <string name="connect_skyeng">Connect to SkyEng</string>
+    <string name="syncronize_hint">You will be able to syncronize your words</string>
+    <string name="e_mail">E-Mail</string>
+    <string name="token_hint">It’s 6-symbol code which was sent on your e-mail</string>
+    <string name="token">Token</string>
+    <string name="re_send"><b>RE-SEND</b></string>
+    <string name="connect">CONNECT</string>
+    <string name="disconnect">DISCONNECT</string>
+    <string name="words"><b>Words</b></string>
+    <string name="skyeng">SkyEng</string>
+    <string name="top1000">Top 1000</string>
+    <string name="user_available">user_available</string>
+    <string name="user_not_available">user_not_available</string>
+    <string name="invalid_e_mail">Invalid e-mail</string>
+    <string name="token_is_empty">Token is empty</string>
+    <string name="token_requested">Token requested</string>
+    <string name="requesting_token">Requesting token…</string>
+    <string name="connecting_skyeng">Connecting to SkyEng…</string>
 </resources>

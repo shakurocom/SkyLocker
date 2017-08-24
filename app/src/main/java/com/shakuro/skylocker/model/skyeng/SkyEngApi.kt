@@ -14,6 +14,8 @@ data class SkyEngAlternativeTranslation(
         val text: String?,
         val translation: SkyEngTranslation?)
 
+data class SkyEngUserMeaning(val meaningId: Long, val progress: Float)
+
 data class SkyEngMeaning(
         val id: Long,
         val text: String?,
@@ -40,7 +42,7 @@ interface SkyEngUserApi {
 
     @GET("/api/public/v1/users/meanings.json")
     fun userMeanings(@Query("email") email: String,
-                     @Query("token") token: String): Call<List<SkyEngMeaning>>
+                     @Query("token") token: String): Call<List<SkyEngUserMeaning>>
 
     @PUT("/api/public/v1/words.json")
     fun putMeanings(@Query("email") email: String,

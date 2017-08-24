@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="0dp">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/settingsConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:paddingTop="32dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:textColor="#de000000"
+            android:text="@string/connect_skyeng"
+            android:id="@+id/userTextView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:textColor="#8b000000"
+            android:text="@string/syncronize_hint"
+            android:id="@+id/syncronizeHintTextView"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/userTextView" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:hint="@string/e_mail"
+            android:id="@+id/emailEditText"
+            android:inputType="textEmailAddress"
+            android:tag="@string/user_not_available"
+            app:layout_constraintTop_toBottomOf="@+id/syncronizeHintTextView" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:hint="@string/token"
+            android:id="@+id/tokenEditText"
+            android:tag="@string/user_not_available"
+            app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/re_send"
+            android:textColor="#4990e2"
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="@+id/tokenEditText"
+            app:layout_constraintTop_toTopOf="@+id/tokenEditText"
+            app:layout_constraintBottom_toBottomOf="@+id/tokenEditText"
+            android:gravity="center_vertical|end"
+            android:layout_marginEnd="8dp"
+            android:textSize="14sp"
+            android:id="@+id/resendTokenButton"
+            android:tag="@string/user_not_available"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textStyle="normal"
+            android:textColor="#8a000000"
+            android:text="@string/token_hint"
+            android:id="@+id/tokenHintTextView"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:tag="@string/user_not_available"
+            app:layout_constraintTop_toBottomOf="@+id/tokenEditText" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="24dp"
+            android:textSize="14sp"
+            android:textColor="#ffffff"
+            android:text="@string/connect"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:id="@+id/buttonConnect"
+            android:background="@drawable/connect_bg"
+            app:layout_constraintTop_toBottomOf="@+id/tokenHintTextView"
+            app:layout_constraintEnd_toEndOf="@+id/tokenEditText"
+            android:tag="@string/user_not_available"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="24dp"
+            android:textSize="14sp"
+            android:id="@+id/buttonDisconnect"
+            android:textColor="#ffffff"
+            android:visibility="gone"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/disconnect"
+            android:background="@drawable/connect_bg"
+            app:layout_constraintTop_toBottomOf="@+id/syncronizeHintTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            android:tag="@string/user_available"
+            android:layout_marginStart="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1e000000"
+            android:layout_marginTop="32dp"
+            android:id="@+id/connectSeparator"
+            app:layout_constraintTop_toBottomOf="@+id/buttonConnect"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:textColor="#4990e2"
+            android:text="@string/words"
+            android:id="@+id/wordsTextView"
+            app:layout_constraintTop_toBottomOf="@+id/connectSeparator"
+            android:layout_marginTop="14dp"
+            android:paddingLeft="16dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:textColor="#de000000"
+            android:lineSpacingExtra="8sp"
+            android:text="@string/skyeng"
+            android:layout_marginTop="32dp"
+            android:paddingLeft="16dp"
+            android:visibility="gone"
+            android:id="@+id/skyEngWordsTextView"
+            android:tag="@string/user_available"
+            app:layout_constraintTop_toBottomOf="@+id/wordsTextView"
+            />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/skyEngWordsCheckBox"
+            android:paddingRight="16dp"
+            android:visibility="gone"
+            android:tag="@string/user_available"
+            app:layout_constraintBaseline_toBaselineOf="@+id/skyEngWordsTextView" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:textColor="#de000000"
+            android:lineSpacingExtra="8sp"
+            android:text="@string/top1000"
+            android:layout_marginTop="32dp"
+            android:paddingLeft="16dp"
+            android:id="@+id/top1000WordsTextView"
+            app:layout_constraintTop_toBottomOf="@+id/skyEngWordsTextView"
+            />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/top1000WordsCheckBox"
+            android:paddingRight="16dp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/top1000WordsTextView" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1e000000"
+            android:layout_marginTop="24dp"
+            android:id="@+id/wordsSeparator"
+            app:layout_constraintTop_toBottomOf="@+id/top1000WordsTextView"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

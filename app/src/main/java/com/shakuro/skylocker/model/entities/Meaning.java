@@ -21,7 +21,7 @@ public class Meaning {
     @NotNull
     private Long wordId;
 
-    @Index(unique = true)
+    @NotNull
     private String text;
 
     @NotNull
@@ -46,8 +46,8 @@ public class Meaning {
     @Generated(hash = 1973883728)
     private transient MeaningDao myDao;
 
-    @Generated(hash = 1896307885)
-    public Meaning(Long id, @NotNull Long wordId, String text, @NotNull String translation,
+    @Generated(hash = 625291587)
+    public Meaning(Long id, @NotNull Long wordId, @NotNull String text, @NotNull String translation,
             String definition, long viewsCounter, long failsCounter, long addedByUserWithId) {
         this.id = id;
         this.wordId = wordId;

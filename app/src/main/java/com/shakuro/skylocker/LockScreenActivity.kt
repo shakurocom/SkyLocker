@@ -3,6 +3,8 @@ package com.shakuro.skylocker
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.WallpaperManager
+import android.content.ClipData
+import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -17,8 +19,6 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.view.*
 import android.view.WindowManager.LayoutParams
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.lock.LockscreenUtils
@@ -29,12 +29,12 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 
-class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListener, View.OnDragListener {
+class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListener {
     private var lockscreenUtils: LockscreenUtils? = null
     private var currentMeaning: Meaning? = null
 
     companion object {
-        private const val IS_FIRST_RUN_KEY = "IS_FIRST_RUN_KEY"
+        private const val DRAG_VIEW_TAG = "DRAG_VIEW_TAG"
     }
 
     // Set appropriate flags to make the screen appear over the keyguard
@@ -81,56 +81,64 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
     private fun init() {
         SkyLockerManager.initInstance(this)
         lockscreenUtils = LockscreenUtils()
-        showRandomMeaning()
 
-        val preferences = SkyLockerManager.instance.preferences
-        val firstRun = preferences.getBoolean(IS_FIRST_RUN_KEY, true)
-        if (firstRun) {
-            preferences.edit().putBoolean(IS_FIRST_RUN_KEY, false).apply()
+        showRandomMeaning()
+        SkyLockerManager.instance.refreshUserMeaningsInBackground()
+
+        root.setDragEventListener {
+            when (it.action) {
+                DragEvent.ACTION_DROP -> {
+                    lockView.visibility = View.VISIBLE
+                }
+            }
         }
 
-        imageView.setImageBitmap(takeScreenshot())
+        skipQuizView.setOnDragListener { v, event ->
+            if (event?.action == DragEvent.ACTION_DROP) {
+                lockView.visibility = View.INVISIBLE
+                unlockHomeButton()
+            }
+            true
+        }
+
+        backgroundImageView.setImageBitmap(takeBlurredBackgroundImage())
     }
 
-    private fun takeScreenshot(): Bitmap {
-        val logger = TimingLogger("qqqqq")
-
+    private fun takeBlurredBackgroundImage(): Bitmap {
+        // get desktop image
         val wallpaperManager = WallpaperManager.getInstance(this.applicationContext)
         val drawable = wallpaperManager.drawable
+        val inWidth = drawable.intrinsicWidth
+        val inHeight = drawable.intrinsicHeight
 
-        val width2 = drawable.intrinsicWidth
-        val height2 = drawable.intrinsicHeight
-        val scale2 = 320.0f / Math.max(width2, height2)
-        val newWidth2 = scale2 * width2
-        val newHeight2 = scale2 * height2
+        // set max size of blurred image to 320 pixels
+        val scale = 320.0f / Math.max(inWidth, inHeight)
+        val outWidth = (scale * inWidth).toInt()
+        val outHeight = (scale * inHeight).toInt()
 
-
-        val bitmap = Bitmap.createBitmap(newWidth2.toInt(), newHeight2.toInt(), Bitmap.Config.ARGB_8888);
+        val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
         val canvas = Canvas(bitmap)
-//        canvas.scale(newWidth2 / newWidth, newHeight2 / newHeight)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
 
         val blurredBitmap = Bitmap.createBitmap(bitmap)
 
         val rs = RenderScript.create(this)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, bitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, blurredBitmap)
-        theIntrinsic.setRadius(12.0f)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(blurredBitmap)
-        tmpIn.destroy()
-        tmpOut.destroy()
-
-        logger.addSplit("qqqqqq")
-        logger.dumpToLog()
+        val blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val inputAllocation = Allocation.createFromBitmap(rs, bitmap)
+        val outputAllocation = Allocation.createFromBitmap(rs, blurredBitmap)
+        blurScript.setRadius(12.0f)
+        blurScript.setInput(inputAllocation)
+        blurScript.forEach(outputAllocation)
+        outputAllocation.copyTo(blurredBitmap)
+        inputAllocation.destroy()
+        outputAllocation.destroy()
 
         return blurredBitmap
     }
 
     private fun showRandomMeaning(): Meaning? {
+        currentMeaning = null
         this.flowLayout.removeAllViews()
 
         currentMeaning = SkyLockerManager.instance.randomMeaning()
@@ -139,38 +147,63 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
             definitionTextView.setText(it.definition)
 
             val answers = SkyLockerManager.instance.answerWithAlternatives(it)
+
+            val answerDragListener = View.OnDragListener { v, event ->
+                if (event?.action == DragEvent.ACTION_DROP) {
+                    lockView.visibility = View.INVISIBLE
+                    checkAnswer(v)
+                }
+                true
+            }
+
             answers.forEach {
                 val answerTextView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, this.flowLayout, false) as TextView
                 answerTextView.setText(it)
-
                 this.flowLayout.addView(answerTextView)
-                answerTextView.setOnDragListener { v, event ->
-                    if (event?.action == DragEvent.ACTION_DROP) {
-                        val dropped = event.localState as ImageView
-                        if (answerTextView.text == currentMeaning?.text) {
-                            dropped.visibility = View.INVISIBLE
-                            Handler().postDelayed({
-                                unlockHomeButton()
-                            }, 500L)
-                        }
-                    }
-                    true
-                }
+                answerTextView.setOnDragListener(answerDragListener)
             }
         }
+
+        lockView.tag = DRAG_VIEW_TAG
 
         lockView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-//                    val shadowBuilder = ImageDragShadowBuilder.fromResource(this, R.drawable.ic_lock_with_bg)
-                    val  shadowBuilder = View.DragShadowBuilder(v)
-                    v.startDrag(null, shadowBuilder, v, 0)
+                    lockView.visibility = View.INVISIBLE
+                    val item = ClipData.Item(v.tag as CharSequence)
+                    // Create a new ClipData using the tag as a label, the plain
+                    // text MIME type, and
+                    // the already-created item. This will create a new
+                    // ClipDescription object within the
+                    // ClipData, and set its MIME type entry to "text/plain"
+                    val dragData = ClipData(v.tag as CharSequence,
+                            arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+                            item)
+                    // DragContainer has its own DragShadowBuilder
+                    root.startDragChild(v, dragData, // the data to be dragged
+                            null, // no need to use local data
+                            0 // flags (not currently used, set to 0)
+                    )
                 }
             }
             true
         }
 
         return currentMeaning
+    }
+
+    private fun checkAnswer(v: View?) {
+        if (v != null && v is TextView) {
+            val correctAnswer = v.text == currentMeaning?.text
+
+            val delay = if (correctAnswer) 500L else 1000L
+            val answerBackground = if (correctAnswer) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
+            v.setBackgroundResource(answerBackground)
+
+            Handler().postDelayed({
+                unlockHomeButton()
+            }, delay)
+        }
     }
 
     private fun words(): List<String> {
@@ -200,20 +233,6 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
                 TelephonyManager.CALL_STATE_IDLE -> { }
             }
         }
-    }
-
-    override fun onDrag(v: View?, event: DragEvent?): Boolean {
-        if (event?.action == DragEvent.ACTION_DROP) {
-            val button = v as Button
-            val dropped = event.localState as TextView
-            if (button.text == currentMeaning?.text) {
-                dropped.visibility = View.INVISIBLE
-                Handler().postDelayed({
-                    unlockHomeButton()
-                }, 500L)
-            }
-        }
-        return true
     }
 
     // Don't finish Activity on Back press
