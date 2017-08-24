@@ -1,12 +1,16 @@
 package com.shakuro.skylocker.model.skyeng
 
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Query
+import com.squareup.moshi.Moshi
+
+
 
 data class SkyEngTranslation(val text: String?)
 
@@ -28,6 +32,11 @@ data class SkyEngWord(
         val id: Long,
         val text: String,
         val meanings: MutableList<SkyEngMeaning>)
+
+
+data class SkyEngErrorMessage(val message: String?)
+data class SkyEngError(val errors: MutableList<SkyEngErrorMessage>?)
+
 
 interface SkyEngDictionaryApi {
 
@@ -69,4 +78,28 @@ object SkyEngApi {
                 .build()
                 .create(SkyEngUserApi::class.java)
     }
+
+    fun handleUserMeaningsError(response: Response<List<SkyEngUserMeaning>>?): Throwable {
+        var result: Throwable = Error("No response")
+        if (response != null) {
+            result = Error("Error: ${response.code()}")
+            if (response.errorBody() != null) {
+                try {
+                    val string = response.errorBody()?.string()
+                    val adapter = Moshi.Builder().build().adapter<SkyEngError>(SkyEngError::class.java)
+                    val error = adapter.fromJson(string)
+                    val message = error.errors?.firstOrNull()
+                    message?.let {
+                        result = Error(it.message)
+                    }
+                } catch (e: Throwable) {
+                    println("Error: " + e.localizedMessage)
+                }
+            }
+        }
+        return result
+    }
 }
+
+
+

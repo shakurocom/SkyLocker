@@ -21,7 +21,7 @@ class LockscreenIntentReceiver : BroadcastReceiver() {
     // Display lock screen
     private fun startLockscreen(context: Context) {
         val mIntent = Intent(context, LockScreenActivity::class.java)
-        mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         context.startActivity(mIntent)
     }
 }

@@ -74,29 +74,34 @@ class SkyLockerManager private constructor(context: Context) {
         SkyEngApi.userApi.userMeanings(email, token).enqueue(object: Callback<List<SkyEngUserMeaning>> {
 
             override fun onResponse(call: Call<List<SkyEngUserMeaning>>?, response: Response<List<SkyEngUserMeaning>>?) {
-                val user = updateActiveUser(email, token)
+                if (response?.isSuccessful == true) {
+                    val user = updateActiveUser(email, token)
 
-                val allUserMeanings = mutableListOf<Long>()
-                val userMeaningsToLoad = mutableListOf<Long>()
+                    val allUserMeanings = mutableListOf<Long>()
+                    val userMeaningsToLoad = mutableListOf<Long>()
 
-                val meaningExistsQuery = daoSession.meaningDao.queryBuilder().where(MeaningDao.Properties.Id.eq(0)).buildCount()
-                response?.body()?.forEach {
-                    allUserMeanings.add(it.meaningId)
+                    val meaningExistsQuery = daoSession.meaningDao.queryBuilder().where(MeaningDao.Properties.Id.eq(0)).buildCount()
+                    response?.body()?.forEach {
+                        allUserMeanings.add(it.meaningId)
 
-                    meaningExistsQuery.setParameter(0, it.meaningId)
-                    if (meaningExistsQuery.count() == 0L) {
-                        userMeaningsToLoad.add(it.meaningId)
+                        meaningExistsQuery.setParameter(0, it.meaningId)
+                        if (meaningExistsQuery.count() == 0L) {
+                            userMeaningsToLoad.add(it.meaningId)
+                        }
                     }
-                }
 
-                assingUserMeanings(user, allUserMeanings)
+                    assingUserMeanings(user, allUserMeanings)
 
-                if (userMeaningsToLoad.size > 0) {
-                    loadUserMeanings(user, userMeaningsToLoad) { error ->
-                        callback(user, error)
+                    if (userMeaningsToLoad.size > 0) {
+                        loadUserMeanings(user, userMeaningsToLoad) { error ->
+                            callback(user, error)
+                        }
+                    } else {
+                        callback(user, null)
                     }
                 } else {
-                    callback(user, null)
+                    val error = SkyEngApi.handleUserMeaningsError(response)
+                    callback(null, error)
                 }
             }
 
