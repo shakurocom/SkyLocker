@@ -101,40 +101,10 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
             true
         }
 
-        backgroundImageView.setImageBitmap(takeBlurredBackgroundImage())
-    }
-
-    private fun takeBlurredBackgroundImage(): Bitmap {
-        // get desktop image
-        val wallpaperManager = WallpaperManager.getInstance(this.applicationContext)
-        val drawable = wallpaperManager.drawable
-        val inWidth = drawable.intrinsicWidth
-        val inHeight = drawable.intrinsicHeight
-
-        // set max size of blurred image to 320 pixels
-        val scale = 320.0f / Math.max(inWidth, inHeight)
-        val outWidth = (scale * inWidth).toInt()
-        val outHeight = (scale * inHeight).toInt()
-
-        val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-
-        val blurredBitmap = Bitmap.createBitmap(bitmap)
-
-        val rs = RenderScript.create(this)
-        val blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val inputAllocation = Allocation.createFromBitmap(rs, bitmap)
-        val outputAllocation = Allocation.createFromBitmap(rs, blurredBitmap)
-        blurScript.setRadius(12.0f)
-        blurScript.setInput(inputAllocation)
-        blurScript.forEach(outputAllocation)
-        outputAllocation.copyTo(blurredBitmap)
-        inputAllocation.destroy()
-        outputAllocation.destroy()
-
-        return blurredBitmap
+        val bgImage = SkyLockerManager.instance.getBlurredBgImage(this)
+        bgImage?.let {
+            backgroundImageView.setImageBitmap(bgImage)
+        }
     }
 
     private fun showRandomMeaning(): Meaning? {

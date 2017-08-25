@@ -1,7 +1,15 @@
 package com.shakuro.skylocker.model
 
+import android.app.WallpaperManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.support.v8.renderscript.Allocation
+import android.support.v8.renderscript.Element
+import android.support.v8.renderscript.RenderScript
+import android.support.v8.renderscript.ScriptIntrinsicBlur
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.model.entities.*
 import com.shakuro.skylocker.model.entities.DaoMaster.DevOpenHelper
@@ -196,6 +204,87 @@ class SkyLockerManager private constructor(context: Context) {
         }
         callback()
     }
+
+    fun genBlurredBgImageIfNotExistsAsync(context: Context) = async(CommonPool) {
+        val imageFile = blurredBgImageFile(context)
+        if (!imageFile.exists()) {
+            try {
+                val image = genBlurredBgImage(context = context)
+                saveImage(image, imageFile)
+            } catch (e: Throwable) {
+                println("Error: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun getBlurredBgImage(context: Context): Bitmap? {
+        var result: Bitmap? = null
+        val imageFile = blurredBgImageFile(context)
+        if (imageFile.exists()) {
+            try {
+                result = BitmapFactory.decodeFile(imageFile.absolutePath)
+                println("loaded from cache")
+            } catch (e: Throwable) {
+                println("Error: ${e.localizedMessage}")
+            }
+        }
+        if (result == null) {
+            try {
+                result = genBlurredBgImage(context = context)
+                saveImage(result, imageFile)
+                println("generated")
+            } catch (e: Throwable) {
+                println("Error: ${e.localizedMessage}")
+            }
+        }
+        return result
+    }
+
+    private fun genBlurredBgImage(context: Context): Bitmap {
+        // get desktop image
+        val wallpaperManager = WallpaperManager.getInstance(context.applicationContext)
+        val drawable = wallpaperManager.drawable
+        val inWidth = drawable.intrinsicWidth
+        val inHeight = drawable.intrinsicHeight
+
+        // set max size of blurred image to 320 pixels
+        val scale = 320.0f / Math.max(inWidth, inHeight)
+        val outWidth = (scale * inWidth).toInt()
+        val outHeight = (scale * inHeight).toInt()
+
+        val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        val blurredBitmap = Bitmap.createBitmap(bitmap)
+
+        val rs = RenderScript.create(context.applicationContext)
+        val blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val inputAllocation = Allocation.createFromBitmap(rs, bitmap)
+        val outputAllocation = Allocation.createFromBitmap(rs, blurredBitmap)
+        blurScript.setRadius(12.0f)
+        blurScript.setInput(inputAllocation)
+        blurScript.forEach(outputAllocation)
+        outputAllocation.copyTo(blurredBitmap)
+        inputAllocation.destroy()
+        outputAllocation.destroy()
+
+        return blurredBitmap
+    }
+
+    private fun saveImage(image: Bitmap, file: File) {
+        val out: FileOutputStream = FileOutputStream(file)
+        try {
+            image.compress(Bitmap.CompressFormat.PNG, 100, out)
+        } catch (e: Throwable) {
+            println("Error: ${e.localizedMessage}")
+        } finally {
+            IOUtils.closeQuietly(out)
+        }
+    }
+
+    private fun blurredBgImageFile(context: Context): File = File(context.filesDir, "blurred_bg.png")
 
     private fun loadUserMeanings(user: User?, toLoad: MutableList<Long>, callback: (Throwable?) -> Unit) {
         val ids = toLoad.joinToString()

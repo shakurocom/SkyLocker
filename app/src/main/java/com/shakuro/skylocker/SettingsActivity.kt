@@ -23,6 +23,8 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         SkyLockerManager.initInstance(this)
+        SkyLockerManager.instance.genBlurredBgImageIfNotExistsAsync(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
