@@ -19,8 +19,10 @@ import org.apache.commons.io.IOUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStreamReader
 import java.util.*
 
 private const val MIN_ALTERNATIVES_COUNT = 3
@@ -179,30 +181,6 @@ class SkyLockerManager private constructor(context: Context) {
                 callback(error)
             }
         })
-    }
-
-    /**
-     * This function used only on development step to fill default db with N most used english words
-     */
-    fun fillWithWords(words: List<String>, callback: () -> Unit) = async(CommonPool) {
-        words.forEach {
-            val exists = daoSession.meaningDao
-                    .queryBuilder()
-                    .where(MeaningDao.Properties.Text.like(it))
-                    .count() > 0L
-            if (!exists) {
-                try {
-                    val (skyEngWord, skyEngMeaning) = searchWord(it)
-                    if (skyEngWord != null && skyEngMeaning != null) {
-                        saveWord(skyEngWord, skyEngMeaning)
-                        println("success: " + it)
-                    }
-                } catch (e: Exception) {
-                    println("fail: $it $e")
-                }
-            }
-        }
-        callback()
     }
 
     fun genBlurredBgImageIfNotExistsAsync(context: Context) = async(CommonPool) {
@@ -389,5 +367,48 @@ class SkyLockerManager private constructor(context: Context) {
                 saveRunnable.run()
             }
         }
+    }
+
+    /**
+     * This function used only on development step to fill default db with N most used english words
+     */
+    fun fillWithWords(words: List<String>, callback: () -> Unit) = async(CommonPool) {
+        words.forEach {
+            val exists = daoSession.meaningDao
+                    .queryBuilder()
+                    .where(MeaningDao.Properties.Text.like(it))
+                    .count() > 0L
+            if (!exists) {
+                try {
+                    val (skyEngWord, skyEngMeaning) = searchWord(it)
+                    if (skyEngWord != null && skyEngMeaning != null) {
+                        saveWord(skyEngWord, skyEngMeaning)
+                        println("success: " + it)
+                    }
+                } catch (e: Exception) {
+                    println("fail: $it $e")
+                }
+            }
+        }
+        callback()
+    }
+
+    /**
+     * This function used only on development step to fill default db with N most used english words
+     */
+    private fun words(context: Context): List<String> {
+        val stream = context.resources.openRawResource(R.raw.words)
+        val rdr = BufferedReader(InputStreamReader(stream))
+        var line = rdr.readLine()
+        val words = mutableListOf<String>()
+        while (line != null) {
+            line = rdr.readLine()
+            if ((line?.length ?: 0) > 0) {
+                words.add(line)
+            }
+        }
+        rdr.close()
+        stream.close()
+        return words
     }
 }

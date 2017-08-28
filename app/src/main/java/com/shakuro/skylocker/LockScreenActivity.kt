@@ -1,8 +1,6 @@
 package com.shakuro.skylocker
 
 import android.app.Activity
-import android.app.KeyguardManager
-import android.app.WallpaperManager
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
@@ -11,21 +9,20 @@ import android.os.Bundle
 import android.os.Handler
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import android.view.*
+import android.view.DragEvent
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import com.shakuro.skylocker.lock.LockscreenService
-import com.shakuro.skylocker.lock.LockscreenUtils
 import com.shakuro.skylocker.model.SkyLockerManager
 import com.shakuro.skylocker.model.entities.Meaning
 import kotlinx.android.synthetic.main.activity_lockscreen.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 
-class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListener {
-    private var lockscreenUtils: LockscreenUtils? = null
+class LockScreenActivity : Activity() {
     private var currentMeaning: Meaning? = null
 
     companion object {
@@ -34,11 +31,11 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
     // Set appropriate flags to make the screen appear over the keyguard
     override fun onAttachedToWindow() {
-        this.window.setType(LayoutParams.TYPE_KEYGUARD_DIALOG)
         this.window.addFlags(LayoutParams.FLAG_FULLSCREEN or
                 LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 LayoutParams.FLAG_KEEP_SCREEN_ON or
                 LayoutParams.FLAG_DISMISS_KEYGUARD)
+        this.window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         super.onAttachedToWindow()
     }
 
@@ -57,16 +54,9 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
         // unlock screen in case of app get killed by system
         if (intent != null && intent.hasExtra("kill") && intent.extras!!.getInt("kill") == 1) {
-            enableKeyguard()
-            unlockHomeButton()
+            unlockDevice()
         } else {
             try {
-                // disable keyguard
-                disableKeyguard()
-
-                // lock home button
-                lockHomeButton()
-
                 // start service for observing intents
                 startService(Intent(this, LockscreenService::class.java))
 
@@ -82,7 +72,6 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
     private fun init() {
         SkyLockerManager.initInstance(this)
-        lockscreenUtils = LockscreenUtils()
 
         showRandomMeaning()
         SkyLockerManager.instance.refreshUserMeaningsInBackground()
@@ -98,7 +87,7 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
         skipQuizView.setOnDragListener { v, event ->
             if (event?.action == DragEvent.ACTION_DROP) {
                 lockView.visibility = View.INVISIBLE
-                unlockHomeButton()
+                unlockDevice()
             }
             true
         }
@@ -173,25 +162,9 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
             v.setBackgroundResource(answerBackground)
 
             Handler().postDelayed({
-                unlockHomeButton()
+                unlockDevice()
             }, delay)
         }
-    }
-
-    private fun words(): List<String> {
-        val stream = resources.openRawResource(R.raw.words)
-        val rdr = BufferedReader(InputStreamReader(stream))
-        var line = rdr.readLine()
-        val words = mutableListOf<String>()
-        while (line != null) {
-            line = rdr.readLine()
-            if ((line?.length ?: 0) > 0) {
-                words.add(line)
-            }
-        }
-        rdr.close()
-        stream.close()
-        return words
     }
 
     // Handle events of calls and unlock screen if necessary
@@ -200,7 +173,7 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
             super.onCallStateChanged(state, incomingNumber)
             when (state) {
-                TelephonyManager.CALL_STATE_RINGING -> unlockHomeButton()
+                TelephonyManager.CALL_STATE_RINGING -> unlockDevice()
                 TelephonyManager.CALL_STATE_OFFHOOK -> { }
                 TelephonyManager.CALL_STATE_IDLE -> { }
             }
@@ -209,69 +182,8 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
 
     // Don't finish Activity on Back press
     override fun onBackPressed() {
-        return
-    }
-
-    // Handle button clicks
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
-                || keyCode == KeyEvent.KEYCODE_POWER
-                || keyCode == KeyEvent.KEYCODE_VOLUME_UP
-                || keyCode == KeyEvent.KEYCODE_CAMERA) {
-            return true
-        }
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
-            return true
-        }
-        return false
-    }
-
-    // handle the key press events here itself
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP
-                || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
-                || event.keyCode == KeyEvent.KEYCODE_POWER) {
-            return false
-        }
-        if (event.keyCode == KeyEvent.KEYCODE_HOME) {
-
-            return true
-        }
-        return false
-    }
-
-    // Lock home button
-    fun lockHomeButton() {
-        lockscreenUtils?.lock(this)
-    }
-
-    // Unlock home button and wait for its callback
-    fun unlockHomeButton() {
-        lockscreenUtils?.unlock()
-    }
-
-    // Simply unlock device when home button is successfully unlocked
-    override fun onLockStatusChanged(isLocked: Boolean) {
-        if (!isLocked) {
-            unlockDevice()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unlockHomeButton()
-    }
-
-    private fun disableKeyguard() {
-        val mKM = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        val mKL = mKM.newKeyguardLock("IN")
-        mKL.disableKeyguard()
-    }
-
-    private fun enableKeyguard() {
-        val mKM = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        val mKL = mKM.newKeyguardLock("IN")
-        mKL.reenableKeyguard()
+        super.onBackPressed()
+        unlockDevice()
     }
 
     //Simply unlock device by finishing the activity
