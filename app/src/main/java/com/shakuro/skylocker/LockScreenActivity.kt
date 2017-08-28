@@ -7,18 +7,13 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Handler
-import android.support.v8.renderscript.Allocation
-import android.support.v8.renderscript.Element
-import android.support.v8.renderscript.RenderScript
-import android.support.v8.renderscript.ScriptIntrinsicBlur
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.view.*
 import android.view.WindowManager.LayoutParams
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.lock.LockscreenUtils
@@ -45,6 +40,13 @@ class LockScreenActivity : Activity(), LockscreenUtils.OnLockStatusChangedListen
                 LayoutParams.FLAG_KEEP_SCREEN_ON or
                 LayoutParams.FLAG_DISMISS_KEYGUARD)
         super.onAttachedToWindow()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
