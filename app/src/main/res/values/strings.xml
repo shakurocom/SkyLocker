@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SkyLocker</string>
     <string name="app_name_bold"><b>SkyLocker</b></string>
-    <string name="skip_quiz">To skip the quiz tap here</string>
+    <string name="skip_quiz">To skip the quiz, tap here</string>
     <string name="connect_skyeng">Connect to SkyEng</string>
     <string name="syncronize_hint">You will be able to synchronize your words</string>
     <string name="e_mail">E-Mail</string>
