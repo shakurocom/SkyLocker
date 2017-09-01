@@ -1,20 +1,16 @@
 package com.shakuro.skylocker
 
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.ContextCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import android.view.DragEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager.LayoutParams
-import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.model.SkyLockerManager
@@ -24,10 +20,6 @@ import kotlinx.android.synthetic.main.activity_lockscreen.*
 
 class LockScreenActivity : Activity() {
     private var currentMeaning: Meaning? = null
-
-    companion object {
-        private const val DRAG_VIEW_TAG = "DRAG_VIEW_TAG"
-    }
 
     // Set appropriate flags to make the screen appear over the keyguard
     override fun onAttachedToWindow() {
@@ -69,22 +61,6 @@ class LockScreenActivity : Activity() {
         showRandomMeaning()
         SkyLockerManager.instance.refreshUserMeaningsInBackground()
 
-        root.setDragEventListener {
-            when (it.action) {
-                DragEvent.ACTION_DROP -> {
-                    lockView.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        skipQuizView.setOnDragListener { v, event ->
-            if (event?.action == DragEvent.ACTION_DROP) {
-                lockView.visibility = View.INVISIBLE
-                unlockDevice()
-            }
-            true
-        }
-
         val bgImage = SkyLockerManager.instance.getBlurredBgImage(this)
         bgImage?.let {
             backgroundImageView.setImageBitmap(bgImage)
@@ -102,45 +78,20 @@ class LockScreenActivity : Activity() {
 
             val answers = SkyLockerManager.instance.answerWithAlternatives(it)
 
-            val answerDragListener = View.OnDragListener { v, event ->
-                if (event?.action == DragEvent.ACTION_DROP) {
-                    lockView.visibility = View.INVISIBLE
-                    checkAnswer(v)
-                }
-                true
+            val answerClickListener = View.OnClickListener { v ->
+                checkAnswer(v)
             }
 
             answers.forEach {
                 val answerTextView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, this.flowLayout, false) as TextView
                 answerTextView.setText(it)
                 this.flowLayout.addView(answerTextView)
-                answerTextView.setOnDragListener(answerDragListener)
+                answerTextView.setOnClickListener(answerClickListener)
             }
         }
 
-        lockView.tag = DRAG_VIEW_TAG
-
-        lockView.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    lockView.visibility = View.INVISIBLE
-                    val item = ClipData.Item(v.tag as CharSequence)
-                    // Create a new ClipData using the tag as a label, the plain
-                    // text MIME type, and
-                    // the already-created item. This will create a new
-                    // ClipDescription object within the
-                    // ClipData, and set its MIME type entry to "text/plain"
-                    val dragData = ClipData(v.tag as CharSequence,
-                            arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-                            item)
-                    // DragContainer has its own DragShadowBuilder
-                    root.startDragChild(v, dragData, // the data to be dragged
-                            null, // no need to use local data
-                            0 // flags (not currently used, set to 0)
-                    )
-                }
-            }
-            true
+        skipQuizView.setOnClickListener {
+            unlockDevice()
         }
 
         return currentMeaning
@@ -152,7 +103,9 @@ class LockScreenActivity : Activity() {
 
             val delay = if (correctAnswer) 500L else 1000L
             val answerBackground = if (correctAnswer) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
+            val answerColor = ContextCompat.getColor(this, if (correctAnswer) R.color.correct_answer else R.color.wrong_answer)
             v.setBackgroundResource(answerBackground)
+            v.setTextColor(answerColor)
 
             Handler().postDelayed({
                 unlockDevice()
@@ -173,7 +126,6 @@ class LockScreenActivity : Activity() {
         }
     }
 
-    // Don't finish Activity on Back press
     override fun onBackPressed() {
         super.onBackPressed()
         unlockDevice()

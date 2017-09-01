@@ -36,6 +36,10 @@ class SettingsActivity : AppCompatActivity() {
         skyEngWordsCheckBox.setOnCheckedChangeListener { _, b -> SkyLockerManager.instance.useUserWords = b }
 
         refreshUserUI()
+
+        if (SkyLockerManager.instance.lockingEnabled && !isLockscreenServiceActive()) {
+            startLockService()
+        }
     }
 
     private fun connect() {
@@ -52,7 +56,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         showProgressDialog(getString(R.string.connecting_skyeng))
-        SkyLockerManager.instance.refreshUserMeanings(email, token, { user, error ->
+        SkyLockerManager.instance.refreshUserMeanings(email, token, { _, error ->
             hideProgressDialog()
             if (error == null) {
                 refreshUserUI()
@@ -101,23 +105,14 @@ class SettingsActivity : AppCompatActivity() {
         val view = MenuItemCompat.getActionView(menuItem)
         val switch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
 
-        if (SkyLockerManager.instance.isFirstRun()) {
-            // start lock service on first application run
-            startLockService()
-
-            switch.isChecked = true
-        } else {
-            switch.isChecked = isLockscreenServiceActive()
-        }
-
-        switch.setOnCheckedChangeListener { compoundButton, checked ->
+        switch.isChecked = SkyLockerManager.instance.lockingEnabled
+        switch.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 startLockService()
             } else {
                 stopLockService()
             }
         }
-
         return true
     }
 
@@ -133,9 +128,15 @@ class SettingsActivity : AppCompatActivity() {
         return result
     }
 
-    private fun startLockService() = startService(Intent(this, LockscreenService::class.java))
+    private fun startLockService() {
+        SkyLockerManager.instance.lockingEnabled = true
+        startService(Intent(this, LockscreenService::class.java))
+    }
 
-    private fun stopLockService() = stopService(Intent(this, LockscreenService::class.java))
+    private fun stopLockService() {
+        SkyLockerManager.instance.lockingEnabled = false
+        stopService(Intent(this, LockscreenService::class.java))
+    }
 
     private fun requestToken() {
         val email = emailEditText.text?.toString()

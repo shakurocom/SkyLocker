@@ -32,6 +32,10 @@ class SkyLockerManager private constructor(context: Context) {
     private val preferences: SharedPreferences
     private val daoSession: DaoSession
 
+    var lockingEnabled: Boolean
+        get() = preferences.getBoolean(LOCKING_ENABLED, true)
+        set(value) = preferences.edit().putBoolean(LOCKING_ENABLED, value).apply()
+
     var useTop1000Words: Boolean
         get() = preferences.getBoolean(USE_TOP_1000_WORDS_KEY, true)
         set(value) = preferences.edit().putBoolean(USE_TOP_1000_WORDS_KEY, value).apply()
@@ -56,6 +60,7 @@ class SkyLockerManager private constructor(context: Context) {
 
     companion object {
         private const val IS_FIRST_RUN_KEY = "IS_FIRST_RUN_KEY"
+        private const val LOCKING_ENABLED = "LOCKING_ENABLED"
         private const val USE_TOP_1000_WORDS_KEY = "USE_TOP_1000_WORDS_KEY"
         private const val USE_USER_WORDS_KEY = "USE_USER_WORDS_KEY"
 
@@ -91,7 +96,7 @@ class SkyLockerManager private constructor(context: Context) {
                     val userMeaningsToLoad = mutableListOf<Long>()
 
                     val meaningExistsQuery = daoSession.meaningDao.queryBuilder().where(MeaningDao.Properties.Id.eq(0)).buildCount()
-                    response?.body()?.forEach {
+                    response.body()?.forEach {
                         allUserMeanings.add(it.meaningId)
 
                         meaningExistsQuery.setParameter(0, it.meaningId)
@@ -124,7 +129,7 @@ class SkyLockerManager private constructor(context: Context) {
     fun refreshUserMeaningsInBackground() = async(CommonPool) {
         val activeUser = activeUser()
         activeUser?.let {
-            refreshUserMeanings(it.email, it.token) { user, error ->
+            refreshUserMeanings(it.email, it.token) { _, error ->
                 error?.let {
                     println("Error: ${error.localizedMessage}")
                 }
