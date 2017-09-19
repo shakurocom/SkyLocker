@@ -24,6 +24,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val MIN_ALTERNATIVES_COUNT = 3
 private const val VIEW_ALTERNATIVES_COUNT = 6
@@ -44,6 +45,10 @@ class SkyLockerManager private constructor(context: Context) {
         get() = preferences.getBoolean(USE_USER_WORDS_KEY, true)
         set(value) = preferences.edit().putBoolean(USE_USER_WORDS_KEY, value).apply()
 
+    private var lastLockTime: Long
+        get() = preferences.getLong(LAST_LOCK_TIME_KEY, 0)
+        set(value) = preferences.edit().putLong(LAST_LOCK_TIME_KEY, value).apply()
+
     init {
         preferences = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
         val dbFile = File(context.filesDir, "skylocker-db")
@@ -59,10 +64,11 @@ class SkyLockerManager private constructor(context: Context) {
     }
 
     companion object {
-        private const val IS_FIRST_RUN_KEY = "IS_FIRST_RUN_KEY"
         private const val LOCKING_ENABLED = "LOCKING_ENABLED"
         private const val USE_TOP_1000_WORDS_KEY = "USE_TOP_1000_WORDS_KEY"
         private const val USE_USER_WORDS_KEY = "USE_USER_WORDS_KEY"
+        private const val LAST_LOCK_TIME_KEY = "LAST_LOCK_TIME_KEY"
+        private const val ENOUGH_SECONDS_TO_LOCK_AGAIN = 10L
 
         private var initializedInstance: SkyLockerManager? = null
 
@@ -77,12 +83,16 @@ class SkyLockerManager private constructor(context: Context) {
         }
     }
 
-    fun isFirstRun(): Boolean {
-        val result = preferences.getBoolean(IS_FIRST_RUN_KEY, true)
-        if (result) {
-            preferences.edit().putBoolean(IS_FIRST_RUN_KEY, false).apply()
+    fun enoughTimePassedToLockAgain(): Boolean {
+        synchronized(this) {
+            val currentTime = System.currentTimeMillis()
+            val passed = TimeUnit.MILLISECONDS.toSeconds(Math.abs(lastLockTime - currentTime))
+            val enoughTimePassed = passed > ENOUGH_SECONDS_TO_LOCK_AGAIN
+            if (enoughTimePassed) {
+                lastLockTime = currentTime
+            }
+            return enoughTimePassed
         }
-        return result
     }
 
     fun refreshUserMeanings(email: String, token: String, callback: (User?, Throwable?) -> Unit) {

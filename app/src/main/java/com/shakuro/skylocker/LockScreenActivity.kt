@@ -2,7 +2,6 @@ package com.shakuro.skylocker
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -12,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.TextView
-import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.model.SkyLockerManager
 import com.shakuro.skylocker.model.entities.Meaning
 import kotlinx.android.synthetic.main.activity_lockscreen.*
@@ -42,9 +40,6 @@ class LockScreenActivity : Activity() {
             unlockDevice()
         } else {
             try {
-                // start service for observing intents
-                startService(Intent(this, LockscreenService::class.java))
-
                 // listen the events get fired during the call
                 val phoneStateListener = StateListener()
                 val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
