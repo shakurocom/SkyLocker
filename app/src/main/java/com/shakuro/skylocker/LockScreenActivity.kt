@@ -21,9 +21,7 @@ class LockScreenActivity : Activity() {
 
     // Set appropriate flags to make the screen appear over the keyguard
     override fun onAttachedToWindow() {
-        this.window.addFlags(LayoutParams.FLAG_FULLSCREEN or
-                LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                LayoutParams.FLAG_KEEP_SCREEN_ON or
+        this.window.addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 LayoutParams.FLAG_DISMISS_KEYGUARD)
         this.window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         super.onAttachedToWindow()
@@ -63,6 +61,8 @@ class LockScreenActivity : Activity() {
     }
 
     private fun showRandomMeaning(): Meaning? {
+        SkyLockerManager.instance.locksCount++
+
         currentMeaning = null
         this.flowLayout.removeAllViews()
 
@@ -85,7 +85,7 @@ class LockScreenActivity : Activity() {
             }
         }
 
-        skipQuizView.setOnClickListener {
+        skipQuizButton.setOnClickListener {
             unlockDevice()
         }
 

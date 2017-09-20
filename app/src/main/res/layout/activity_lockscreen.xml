@@ -24,10 +24,9 @@
         android:textSize="40sp"
         android:textStyle="normal"
         android:textColor="#deffffff"
-        android:lineSpacingExtra="4sp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingBottom="8dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/definitionTextView"
         />
 
@@ -39,42 +38,37 @@
         android:textStyle="normal"
         android:textColor="#deffffff"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="16dp"
+        android:paddingRight="57dp"
+        android:layout_marginBottom="22dp"
         app:layout_constraintBottom_toTopOf="@+id/flowLayout" />
 
-    <org.apmem.tools.layouts.FlowLayout
-        android:orientation="horizontal"
+    <LinearLayout
+        android:orientation="vertical"
         android:gravity="fill"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/flowLayout"
-        android:layout_marginBottom="14dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/skipQuizView" />
+        app:layout_constraintBottom_toTopOf="@+id/skipQuizButton" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:textStyle="normal"
-        android:textColor="#deffffff"
+        android:textColor="@color/skip_text_color"
         android:gravity="center"
         android:text="@string/skip_quiz"
-        app:layout_constraintBottom_toBottomOf="@+id/skipQuizView"
-        app:layout_constraintTop_toTopOf="@+id/skipQuizView" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="152dp"
-        android:background="@drawable/dashed_bg"
-        android:layout_marginBottom="9dp"
-        android:layout_marginLeft="9dp"
-        android:layout_marginRight="9dp"
-        android:layout_marginEnd="9dp"
+        android:id="@+id/skipQuizButton"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/skipQuizView" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </android.support.constraint.ConstraintLayout>

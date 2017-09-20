@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textSize="14sp"
     android:textStyle="normal"
     android:textColor="#f3ffffff"
     android:gravity="center"
     android:background="@drawable/answer_bg"
-    android:layout_marginTop="12dp"
-    android:layout_marginRight="12dp"
+    android:layout_marginTop="8dp"
     android:paddingTop="14dp"
     android:paddingBottom="14dp"
-    android:paddingLeft="24dp"
-    android:paddingRight="24dp"
     />

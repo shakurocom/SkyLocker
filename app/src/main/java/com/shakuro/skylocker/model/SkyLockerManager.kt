@@ -27,7 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 private const val MIN_ALTERNATIVES_COUNT = 3
-private const val VIEW_ALTERNATIVES_COUNT = 6
+private const val VIEW_ALTERNATIVES_COUNT = 3
 
 class SkyLockerManager private constructor(context: Context) {
     private val preferences: SharedPreferences
@@ -49,6 +49,10 @@ class SkyLockerManager private constructor(context: Context) {
         get() = preferences.getLong(LAST_LOCK_TIME_KEY, 0)
         set(value) = preferences.edit().putLong(LAST_LOCK_TIME_KEY, value).apply()
 
+    var locksCount: Long
+        get() = preferences.getLong(LOCKS_COUNT_KEY, 0)
+        set(value) = preferences.edit().putLong(LOCKS_COUNT_KEY, value).apply()
+
     init {
         preferences = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
         val dbFile = File(context.filesDir, "skylocker-db")
@@ -67,8 +71,10 @@ class SkyLockerManager private constructor(context: Context) {
         private const val LOCKING_ENABLED = "LOCKING_ENABLED"
         private const val USE_TOP_1000_WORDS_KEY = "USE_TOP_1000_WORDS_KEY"
         private const val USE_USER_WORDS_KEY = "USE_USER_WORDS_KEY"
+        private const val LOCKS_COUNT_KEY = "LOCKS_COUNT_KEY"
         private const val LAST_LOCK_TIME_KEY = "LAST_LOCK_TIME_KEY"
         private const val ENOUGH_SECONDS_TO_LOCK_AGAIN = 10L
+        private const val LOCKS_COUNT_TO_MEANINGS_REFRESH = 5
 
         private var initializedInstance: SkyLockerManager? = null
 
@@ -139,9 +145,11 @@ class SkyLockerManager private constructor(context: Context) {
     fun refreshUserMeaningsInBackground() = async(CommonPool) {
         val activeUser = activeUser()
         activeUser?.let {
-            refreshUserMeanings(it.email, it.token) { _, error ->
-                error?.let {
-                    println("Error: ${error.localizedMessage}")
+            if (locksCount > 0 && locksCount % LOCKS_COUNT_TO_MEANINGS_REFRESH == 0L) {
+                refreshUserMeanings(it.email, it.token) { _, error ->
+                    error?.let {
+                        println("Error: ${error.localizedMessage}")
+                    }
                 }
             }
         }
@@ -183,6 +191,7 @@ class SkyLockerManager private constructor(context: Context) {
         daoSession.database.execSQL(sql)
 
         daoSession.clear()
+        locksCount = 0
     }
 
     fun requestToken(email: String, callback: (Throwable?) -> Unit) {
