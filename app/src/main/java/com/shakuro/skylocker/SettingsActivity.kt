@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_settings.*
 
 class SettingsActivity : AppCompatActivity() {
     private var progressDialog: ProgressDialog? = null
+    private var lockingSwitch: SwitchCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         SkyLockerManager.initInstance(this)
@@ -32,13 +33,38 @@ class SettingsActivity : AppCompatActivity() {
         buttonConnect.setOnClickListener { connect() }
         buttonDisconnect.setOnClickListener { disconnect() }
 
-        top1000WordsCheckBox.setOnCheckedChangeListener { _, b -> SkyLockerManager.instance.useTop1000Words = b }
-        skyEngWordsCheckBox.setOnCheckedChangeListener { _, b -> SkyLockerManager.instance.useUserWords = b }
+        top1000WordsCheckBox.setOnCheckedChangeListener { _, b ->
+            SkyLockerManager.instance.useTop1000Words = b
+            checkWordsExist()
+        }
+
+        skyEngWordsCheckBox.setOnCheckedChangeListener { _, b ->
+            SkyLockerManager.instance.useUserWords = b
+            checkWordsExist()
+        }
 
         refreshUserUI()
 
         if (SkyLockerManager.instance.lockingEnabled && !isLockscreenServiceActive()) {
             startLockService()
+        }
+    }
+
+    private fun checkWordsExist() {
+        with (SkyLockerManager.instance) {
+            val meaning = randomMeaning()
+            if (lockingEnabled) {
+                if (meaning == null) {
+                    stopLockService()
+                    lockingSwitch?.isChecked = false
+                    Toast.makeText(baseContext, R.string.no_words_for_studying, Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                if ((useUserWords || useTop1000Words) && meaning != null) {
+                    startLockService()
+                    lockingSwitch?.isChecked = true
+                }
+            }
         }
     }
 
@@ -69,6 +95,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun disconnect() {
         SkyLockerManager.instance.disconnectActiveUser()
         refreshUserUI()
+        checkWordsExist()
     }
 
     private fun refreshUserUI() {
@@ -93,7 +120,8 @@ class SettingsActivity : AppCompatActivity() {
         constraintSet.connect(connectSeparator.id, ConstraintSet.TOP, separatorConnectViewId, ConstraintSet.BOTTOM)
         constraintSet.applyTo(settingsConstraintLayout)
 
-        userTextView.setText(user?.email ?: getString(R.string.connect_skyeng))
+        userTextView.text = user?.email ?: getString(R.string.connect_skyeng)
+
         top1000WordsCheckBox.isChecked = SkyLockerManager.instance.useTop1000Words
         skyEngWordsCheckBox.isChecked = SkyLockerManager.instance.useUserWords
     }
@@ -103,14 +131,15 @@ class SettingsActivity : AppCompatActivity() {
 
         val menuItem = menu.findItem(R.id.switchItem)
         val view = MenuItemCompat.getActionView(menuItem)
-        val switch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
-
-        switch.isChecked = SkyLockerManager.instance.lockingEnabled
-        switch.setOnCheckedChangeListener { _, checked ->
-            if (checked) {
-                startLockService()
-            } else {
-                stopLockService()
+        lockingSwitch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
+        lockingSwitch?.let {
+            it.isChecked = SkyLockerManager.instance.lockingEnabled
+            it.setOnCheckedChangeListener { _, checked ->
+                if (checked) {
+                    startLockService()
+                } else {
+                    stopLockService()
+                }
             }
         }
         return true

@@ -2,6 +2,4 @@
 <resources>
     <color name="colorAccent">#1e77de</color>
     <color name="overlayColor">#660f0f0f</color>
-    <color name="correct_answer">#b8e986</color>
-    <color name="wrong_answer">#ee6172</color>
 </resources>

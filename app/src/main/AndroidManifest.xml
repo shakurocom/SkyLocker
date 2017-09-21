@@ -47,7 +47,7 @@
         </service>
 
         <receiver
-            android:name=".lock.LockscreenIntentReceiver"
+            android:name=".lock.BootCompletedIntentReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

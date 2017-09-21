@@ -19,14 +19,13 @@ class LockscreenService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
+        mReceiver = LockscreenIntentReceiver()
+        registerReceiver(mReceiver, filter)
     }
 
     // Register for Lockscreen event intents
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
-//        filter.addAction(Intent.ACTION_SCREEN_OFF)
-        mReceiver = LockscreenIntentReceiver()
-        registerReceiver(mReceiver, filter)
         startForeground()
         return Service.START_STICKY
     }

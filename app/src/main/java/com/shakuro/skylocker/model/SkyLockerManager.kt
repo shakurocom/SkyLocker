@@ -53,6 +53,9 @@ class SkyLockerManager private constructor(context: Context) {
         get() = preferences.getLong(LOCKS_COUNT_KEY, 0)
         set(value) = preferences.edit().putLong(LOCKS_COUNT_KEY, value).apply()
 
+    val shouldRefreshUserMeanings: Boolean
+        get() = activeUser() != null && locksCount > 0 && locksCount % LOCKS_COUNT_TO_MEANINGS_REFRESH == 0L
+
     init {
         preferences = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
         val dbFile = File(context.filesDir, "skylocker-db")
@@ -105,34 +108,38 @@ class SkyLockerManager private constructor(context: Context) {
         SkyEngApi.userApi.userMeanings(email, token).enqueue(object: Callback<List<SkyEngUserMeaning>> {
 
             override fun onResponse(call: Call<List<SkyEngUserMeaning>>?, response: Response<List<SkyEngUserMeaning>>?) {
-                if (response?.isSuccessful == true) {
-                    val user = updateActiveUser(email, token)
+                try {
+                    if (response?.isSuccessful == true) {
+                        val user = updateActiveUser(email, token)
 
-                    val allUserMeanings = mutableListOf<Long>()
-                    val userMeaningsToLoad = mutableListOf<Long>()
+                        val allUserMeanings = mutableListOf<Long>()
+                        val userMeaningsToLoad = mutableListOf<Long>()
 
-                    val meaningExistsQuery = daoSession.meaningDao.queryBuilder().where(MeaningDao.Properties.Id.eq(0)).buildCount()
-                    response.body()?.forEach {
-                        allUserMeanings.add(it.meaningId)
+                        val meaningExistsQuery = daoSession.meaningDao.queryBuilder().where(MeaningDao.Properties.Id.eq(0)).buildCount()
+                        response.body()?.forEach {
+                            allUserMeanings.add(it.meaningId)
 
-                        meaningExistsQuery.setParameter(0, it.meaningId)
-                        if (meaningExistsQuery.count() == 0L) {
-                            userMeaningsToLoad.add(it.meaningId)
+                            meaningExistsQuery.setParameter(0, it.meaningId)
+                            if (meaningExistsQuery.count() == 0L) {
+                                userMeaningsToLoad.add(it.meaningId)
+                            }
                         }
-                    }
 
-                    assingUserMeanings(user, allUserMeanings)
+                        assingUserMeanings(user, allUserMeanings)
 
-                    if (userMeaningsToLoad.size > 0) {
-                        loadUserMeanings(user, userMeaningsToLoad) { error ->
-                            callback(user, error)
+                        if (userMeaningsToLoad.size > 0) {
+                            loadUserMeanings(user, userMeaningsToLoad) { error ->
+                                callback(user, error)
+                            }
+                        } else {
+                            callback(user, null)
                         }
                     } else {
-                        callback(user, null)
+                        val error = SkyEngApi.handleUserMeaningsError(response)
+                        callback(null, error)
                     }
-                } else {
-                    val error = SkyEngApi.handleUserMeaningsError(response)
-                    callback(null, error)
+                } catch (e: Exception) {
+                    callback(null, e)
                 }
             }
 
@@ -142,14 +149,13 @@ class SkyLockerManager private constructor(context: Context) {
         })
     }
 
-    fun refreshUserMeaningsInBackground() = async(CommonPool) {
-        val activeUser = activeUser()
-        activeUser?.let {
-            if (locksCount > 0 && locksCount % LOCKS_COUNT_TO_MEANINGS_REFRESH == 0L) {
-                refreshUserMeanings(it.email, it.token) { _, error ->
-                    error?.let {
-                        println("Error: ${error.localizedMessage}")
-                    }
+    fun requestUserMeaningsUpdate() {
+        activeUser()?.let {
+            println("Refreshing started")
+            refreshUserMeanings(it.email, it.token) { _, error ->
+                println("Refresh ended")
+                error?.let {
+                    println("Error: ${error.localizedMessage}")
                 }
             }
         }
@@ -225,7 +231,6 @@ class SkyLockerManager private constructor(context: Context) {
         if (imageFile.exists()) {
             try {
                 result = BitmapFactory.decodeFile(imageFile.absolutePath)
-                println("loaded from cache")
             } catch (e: Throwable) {
                 println("Error: ${e.localizedMessage}")
             }
@@ -234,7 +239,6 @@ class SkyLockerManager private constructor(context: Context) {
             try {
                 result = genBlurredBgImage(context = context)
                 saveImage(result, imageFile)
-                println("generated")
             } catch (e: Throwable) {
                 println("Error: ${e.localizedMessage}")
             }
@@ -381,7 +385,7 @@ class SkyLockerManager private constructor(context: Context) {
                         addedByUserWithId = user.id
                     }
                 }
-                daoSession.insert(meaning)
+                daoSession.insertOrReplace(meaning)
                 println("${meaning.id} ${meaning.text}")
             }
 
