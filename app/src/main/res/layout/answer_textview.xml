@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:textSize="14sp"
     android:textStyle="normal"
-    android:textColor="#f3ffffff"
+    android:textColor="@color/answer_text_color"
     android:gravity="center"
     android:background="@drawable/answer_bg"
     android:layout_marginTop="8dp"

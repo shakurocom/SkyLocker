@@ -3,6 +3,7 @@ package com.shakuro.skylocker
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -96,10 +97,16 @@ class LockScreenActivity : Activity() {
             val delay = if (correctAnswer) 500L else 1000L
             val answerBackground = if (correctAnswer) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
             v.setBackgroundResource(answerBackground)
+            v.setTextColor(Color.WHITE)
 
             Handler().postDelayed({
                 unlockDevice()
             }, delay)
+
+            skipQuizButton.isEnabled = false
+            for (i in 0..flowLayout.childCount - 1) {
+                flowLayout.getChildAt(i).isEnabled = false
+            }
         }
     }
 
