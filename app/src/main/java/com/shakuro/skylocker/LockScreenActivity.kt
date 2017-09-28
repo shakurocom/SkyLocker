@@ -2,24 +2,30 @@ package com.shakuro.skylocker
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.TextView
-import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.model.SkyLockerManager
 import com.shakuro.skylocker.model.entities.Meaning
+import com.shakuro.skylocker.ui.BlurredImageLoader
 import kotlinx.android.synthetic.main.activity_lockscreen.*
+import javax.inject.Inject
 
 
 class LockScreenActivity : Activity() {
+
+    @Inject
+    internal lateinit var skyLockerManager: SkyLockerManager
+
+    @Inject
+    internal lateinit var blurredImageLoader: BlurredImageLoader
+
     private var currentMeaning: Meaning? = null
 
     // Set appropriate flags to make the screen appear over the keyguard
@@ -34,8 +40,9 @@ class LockScreenActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lockscreen)
 
-        SkyLockerManager.initInstance(this)
-        val bgImage = SkyLockerManager.instance.getBlurredBgImage(this)
+        (application as SkyLockerApp).appComponent.inject(this)
+
+        val bgImage = blurredImageLoader.getBlurredBgImage()
         bgImage?.let {
             backgroundImageView.setImageBitmap(bgImage)
         }
@@ -60,12 +67,12 @@ class LockScreenActivity : Activity() {
         currentMeaning = null
         this.flowLayout.removeAllViews()
 
-        currentMeaning = SkyLockerManager.instance.randomMeaning()
+        currentMeaning = skyLockerManager.randomMeaning()
         currentMeaning?.let {
             wordTextView.setText(it.translation.capitalize())
             definitionTextView.setText(it.definition.capitalize())
 
-            val answers = SkyLockerManager.instance.answerWithAlternatives(it)
+            val answers = skyLockerManager.answerWithAlternatives(it)
 
             val answerClickListener = View.OnClickListener { v ->
                 checkAnswer(v)

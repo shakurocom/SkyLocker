@@ -35,7 +35,7 @@ class LockscreenService : Service() {
         val notification = NotificationCompat.Builder(this)
                 .setContentTitle(resources.getString(R.string.app_name))
                 .setTicker(resources.getString(R.string.app_name))
-                .setContentText("Running")
+                .setContentText("Running ${this.application.javaClass.name}")
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentIntent(null)
                 .setOngoing(true)

@@ -15,43 +15,53 @@ import android.view.View
 import android.widget.Toast
 import com.shakuro.skylocker.lock.LockscreenService
 import com.shakuro.skylocker.model.SkyLockerManager
+import com.shakuro.skylocker.ui.BlurredImageLoader
 import kotlinx.android.synthetic.main.activity_settings.*
+import javax.inject.Inject
 
 
 class SettingsActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var skyLockerManager: SkyLockerManager
+
+    @Inject
+    lateinit var blurredImageLoader: BlurredImageLoader
+
     private var progressDialog: ProgressDialog? = null
     private var lockingSwitch: SwitchCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        SkyLockerManager.initInstance(this)
-        SkyLockerManager.instance.genBlurredBgImageIfNotExistsAsync(this)
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        (application as SkyLockerApp).appComponent.inject(this)
+
+        blurredImageLoader.genBlurredBgImageIfNotExistsAsync()
 
         resendTokenButton.setOnClickListener { requestToken() }
         buttonConnect.setOnClickListener { connect() }
         buttonDisconnect.setOnClickListener { disconnect() }
 
         top1000WordsCheckBox.setOnCheckedChangeListener { _, b ->
-            SkyLockerManager.instance.useTop1000Words = b
+            skyLockerManager.useTop1000Words = b
             checkWordsExist()
         }
 
         skyEngWordsCheckBox.setOnCheckedChangeListener { _, b ->
-            SkyLockerManager.instance.useUserWords = b
+            skyLockerManager.useUserWords = b
             checkWordsExist()
         }
 
         refreshUserUI()
 
-        if (SkyLockerManager.instance.lockingEnabled && !isLockscreenServiceActive()) {
+        if (skyLockerManager.lockingEnabled && !isLockscreenServiceActive()) {
             startLockService()
         }
     }
 
     private fun checkWordsExist() {
-        with (SkyLockerManager.instance) {
+        with (skyLockerManager) {
             val meaning = randomMeaning()
             if (lockingEnabled) {
                 if (meaning == null) {
@@ -82,7 +92,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         showProgressDialog(getString(R.string.connecting_skyeng))
-        SkyLockerManager.instance.refreshUserMeanings(email, token, { _, error ->
+        skyLockerManager.refreshUserMeanings(email, token, { _, error ->
             hideProgressDialog()
             if (error == null) {
                 refreshUserUI()
@@ -93,13 +103,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun disconnect() {
-        SkyLockerManager.instance.disconnectActiveUser()
+        skyLockerManager.disconnectActiveUser()
         refreshUserUI()
         checkWordsExist()
     }
 
     private fun refreshUserUI() {
-        val user = SkyLockerManager.instance.activeUser()
+        val user = skyLockerManager.activeUser()
         val userAvailable = user != null
 
         // show / hide controls depending on active user exists
@@ -122,8 +132,8 @@ class SettingsActivity : AppCompatActivity() {
 
         userTextView.text = user?.email ?: getString(R.string.connect_skyeng)
 
-        top1000WordsCheckBox.isChecked = SkyLockerManager.instance.useTop1000Words
-        skyEngWordsCheckBox.isChecked = SkyLockerManager.instance.useUserWords
+        top1000WordsCheckBox.isChecked = skyLockerManager.useTop1000Words
+        skyEngWordsCheckBox.isChecked = skyLockerManager.useUserWords
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -133,7 +143,7 @@ class SettingsActivity : AppCompatActivity() {
         val view = MenuItemCompat.getActionView(menuItem)
         lockingSwitch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
         lockingSwitch?.let {
-            it.isChecked = SkyLockerManager.instance.lockingEnabled
+            it.isChecked = skyLockerManager.lockingEnabled
             it.setOnCheckedChangeListener { _, checked ->
                 if (checked) {
                     startLockService()
@@ -158,12 +168,12 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun startLockService() {
-        SkyLockerManager.instance.lockingEnabled = true
+        skyLockerManager.lockingEnabled = true
         startService(Intent(this, LockscreenService::class.java))
     }
 
     private fun stopLockService() {
-        SkyLockerManager.instance.lockingEnabled = false
+        skyLockerManager.lockingEnabled = false
         stopService(Intent(this, LockscreenService::class.java))
     }
 
@@ -172,7 +182,7 @@ class SettingsActivity : AppCompatActivity() {
         val validEmail = email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches()
         if (validEmail) {
             showProgressDialog(getString(R.string.requesting_token))
-            SkyLockerManager.instance.requestToken(email!!, { error ->
+            skyLockerManager.requestToken(email!!, { error ->
                 hideProgressDialog()
                 val message = error?.localizedMessage ?: getString(R.string.token_requested)
                 val duration = if (error == null) Toast.LENGTH_SHORT else Toast.LENGTH_LONG

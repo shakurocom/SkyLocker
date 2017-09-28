@@ -28,14 +28,13 @@ android {
         main.java.srcDirs += 'build/generated/source/greendao'
     }
 
+    kapt { generateStubs = true }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-
-    productFlavors {
     }
 }
 
@@ -61,4 +60,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile "commons-io:commons-io:2.4"
     compile 'org.apmem.tools:layouts:1.9@aar'
+
+    compile "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
 }
