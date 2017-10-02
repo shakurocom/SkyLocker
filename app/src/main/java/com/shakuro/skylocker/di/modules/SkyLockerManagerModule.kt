@@ -16,7 +16,7 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Qualifier
-annotation class ForSkyLockerDB
+annotation class SkyLockerDBFile
 
 @Module(includes = arrayOf(SkyEngApiModule::class, ContextModule::class))
 class SkyLockerManagerModule {
@@ -31,13 +31,13 @@ class SkyLockerManagerModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(@ForApplication context: Context) =
+    fun provideSharedPreferences(@ApplicationContext context: Context) =
             context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
 
     @Provides
     @Singleton
-    fun provideDaoSession(@ForApplication context: Context,
-                          @ForSkyLockerDB dbFile: File): DaoSession {
+    fun provideDaoSession(@ApplicationContext context: Context,
+                          @SkyLockerDBFile dbFile: File): DaoSession {
         if (!dbFile.exists()) {
             val inputStream = context.resources.openRawResource(R.raw.skylockerdb)
             val outputStream = FileOutputStream(dbFile)
@@ -51,8 +51,8 @@ class SkyLockerManagerModule {
 
     @Provides
     @Singleton
-    @ForSkyLockerDB
-    fun provideBlurredImageFile(@ForApplication context: Context): File {
+    @SkyLockerDBFile
+    fun provideSkyLockerDBFile(@ApplicationContext context: Context): File {
         return File(context.filesDir, SkyLockerManager.DB_FILE_NAME)
     }
 

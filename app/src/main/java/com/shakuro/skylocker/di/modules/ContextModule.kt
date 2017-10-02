@@ -10,14 +10,14 @@ import dagger.Provides
 import javax.inject.Qualifier
 
 @Qualifier
-annotation class ForApplication
+annotation class ApplicationContext
 
 @Module
 class ContextModule(private val application: SkyLockerApp) {
 
     @Provides
     @Singleton
-    @ForApplication
+    @ApplicationContext
     fun provideApplicationContext(): Context {
         return application
     }
