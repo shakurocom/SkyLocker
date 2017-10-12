@@ -5,6 +5,7 @@ import com.shakuro.skylocker.model.skyeng.SkyEngDictionaryApi
 import com.shakuro.skylocker.model.skyeng.SkyEngUserApi
 import dagger.Module
 import dagger.Provides
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
@@ -19,23 +20,13 @@ class SkyEngApiModule {
 
     @Provides
     @Singleton
-    fun provideSkyEngDictionaryApi(builder: Retrofit.Builder, converterFactory: MoshiConverterFactory): SkyEngDictionaryApi {
-        return builder
-                .baseUrl(SkyEngDictionaryApi.URL)
-                .addConverterFactory(converterFactory)
-                .build()
-                .create(SkyEngDictionaryApi::class.java)
-    }
+    fun provideSkyEngDictionaryApi(builder: Retrofit.Builder, converterFactory: Converter.Factory) =
+            SkyEngDictionaryApi.create(builder, converterFactory)
 
     @Provides
     @Singleton
-    fun provideSkyEngUserApi(builder: Retrofit.Builder, converterFactory: MoshiConverterFactory): SkyEngUserApi {
-        return builder
-                .baseUrl(SkyEngUserApi.URL)
-                .addConverterFactory(converterFactory)
-                .build()
-                .create(SkyEngUserApi::class.java)
-    }
+    fun provideSkyEngUserApi(builder: Retrofit.Builder, converterFactory: Converter.Factory) =
+            SkyEngUserApi.create(builder, converterFactory)
 
     @Provides
     @Singleton
@@ -43,5 +34,5 @@ class SkyEngApiModule {
 
     @Provides
     @Singleton
-    fun provideMoshiConverterFactory() = MoshiConverterFactory.create()
+    fun provideConverterFactory() = MoshiConverterFactory.create()
 }

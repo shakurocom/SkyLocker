@@ -1,6 +1,8 @@
 package com.shakuro.skylocker.model.skyeng
 
 import retrofit2.Call
+import retrofit2.Converter
+import retrofit2.Retrofit
 import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.PUT
@@ -10,6 +12,14 @@ interface SkyEngUserApi {
 
     companion object {
         const val URL = "http://words.skyeng.ru"
+
+        fun create(builder: Retrofit.Builder, converterFactory: Converter.Factory): SkyEngUserApi {
+            return builder
+                    .baseUrl(URL)
+                    .addConverterFactory(converterFactory)
+                    .build()
+                    .create(SkyEngUserApi::class.java)
+        }
     }
 
     @GET("/api/public/v1/users/meanings.json")
