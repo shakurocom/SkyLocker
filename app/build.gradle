@@ -64,7 +64,6 @@ dependencies {
     compile "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
-    compile 'com.arello-mobile:moxy:1.5.3'
     compile 'com.arello-mobile:moxy-app-compat:1.5.3'
     kapt 'com.arello-mobile:moxy-compiler:1.5.3'
 }

@@ -13,8 +13,8 @@
     <string name="words"><b>Words</b></string>
     <string name="skyeng_words">Words from SkyEng.ru</string>
     <string name="top1000">1000 most common words</string>
-    <string name="user_available">user_available</string>
-    <string name="user_not_available">user_not_available</string>
+    <string name="user_authorized">user_authorized</string>
+    <string name="user_not_authorized">user_not_authorized</string>
     <string name="invalid_e_mail">Invalid e-mail</string>
     <string name="token_is_empty">Token is empty</string>
     <string name="token_requested">Token requested</string>

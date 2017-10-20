@@ -34,5 +34,5 @@ class SkyEngApiModule {
 
     @Provides
     @Singleton
-    fun provideConverterFactory() = MoshiConverterFactory.create()
+    fun provideConverterFactory(): Converter.Factory  = MoshiConverterFactory.create()
 }

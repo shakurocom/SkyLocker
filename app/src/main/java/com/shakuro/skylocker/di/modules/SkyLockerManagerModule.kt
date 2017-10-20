@@ -10,6 +10,8 @@ import com.shakuro.skylocker.model.skyeng.SkyEngApi
 import dagger.Module
 import dagger.Provides
 import org.apache.commons.io.IOUtils
+import ru.terrakok.gitlabclient.model.system.LockServiceManager
+import ru.terrakok.gitlabclient.model.system.ResourceManager
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Qualifier
@@ -56,4 +58,15 @@ class SkyLockerManagerModule {
         return File(context.filesDir, SkyLockerManager.DB_FILE_NAME)
     }
 
+    @Provides
+    @Singleton
+    fun provideResourceManager(@ApplicationContext context: Context): ResourceManager {
+        return ResourceManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLockServiceManager(@ApplicationContext context: Context): LockServiceManager {
+        return LockServiceManager(context)
+    }
 }
