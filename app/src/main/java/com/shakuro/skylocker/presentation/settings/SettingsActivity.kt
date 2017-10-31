@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_settings.*
 class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     private var progressDialog: ProgressDialog? = null
     private var lockingSwitch: SwitchCompat? = null
+    private var lockingEnabled = true
 
     @InjectPresenter
     lateinit var presenter: SettingsPresenter
@@ -61,11 +62,12 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
         val menuItem = menu.findItem(R.id.switchItem)
         val view = MenuItemCompat.getActionView(menuItem)
         lockingSwitch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
-        lockingSwitch?.setOnCheckedChangeListener { _, checked ->
-             presenter.onLockChangedAction(checked)
+        lockingSwitch?.let {
+            it.setOnCheckedChangeListener { _, checked ->
+                presenter.onLockChangedAction(checked)
+            }
+            it.isChecked = lockingEnabled
         }
-
-        presenter.requestLockStateUpdate()
         return true
     }
 
@@ -102,6 +104,7 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
 
     override fun setLockEnabled(enabled: Boolean) {
         lockingSwitch?.isChecked = enabled
+        lockingEnabled = enabled
     }
 
     override fun setUseTop1000Words(use: Boolean) {

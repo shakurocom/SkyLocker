@@ -34,6 +34,10 @@ class SettingsPresenter : MvpPresenter<SettingsView>() {
             viewState.setLockEnabled(true)
         }
 
+        refresAuthorizedState()
+        viewState.setUseTop1000Words(skyLockerManager.useTop1000Words)
+        viewState.setUseUserWords(skyLockerManager.useUserWords)
+
         blurredImageLoader.genBlurredBgImageIfNotExistsAsync()
     }
 
@@ -97,10 +101,6 @@ class SettingsPresenter : MvpPresenter<SettingsView>() {
     fun onUseUserWordsAction(use: Boolean) {
         skyLockerManager.useUserWords = use
         checkWordsExist()
-    }
-
-    fun requestLockStateUpdate() {
-        viewState.setLockEnabled(lockServiceManager.isLockServiceActive())
     }
 
     private fun checkWordsExist() {
