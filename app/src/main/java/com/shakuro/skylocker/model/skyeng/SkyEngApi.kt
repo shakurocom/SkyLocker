@@ -2,7 +2,6 @@ package com.shakuro.skylocker.model.skyeng
 
 import com.squareup.moshi.Moshi
 import retrofit2.Response
-import javax.inject.Inject
 
 data class SkyEngTranslation(val text: String?)
 

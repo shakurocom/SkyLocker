@@ -11,16 +11,11 @@ import dagger.Module
 import dagger.Provides
 import org.apache.commons.io.IOUtils
 import ru.terrakok.gitlabclient.model.system.LockServiceManager
-import ru.terrakok.gitlabclient.model.system.ResourceManager
 import java.io.File
 import java.io.FileOutputStream
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Qualifier
-annotation class SkyLockerDBFile
-
-@Module(includes = arrayOf(SkyEngApiModule::class, ContextModule::class))
+@Module(includes = arrayOf(SkyEngApiModule::class, ContextModule::class, SystemServicesModule::class))
 class SkyLockerManagerModule {
 
     @Provides
@@ -30,11 +25,6 @@ class SkyLockerManagerModule {
                                 daoSession: DaoSession): SkyLockerManager {
         return SkyLockerManager(skyEngApi, preferences, daoSession)
     }
-
-    @Provides
-    @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context) =
-            context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
 
     @Provides
     @Singleton
@@ -56,12 +46,6 @@ class SkyLockerManagerModule {
     @SkyLockerDBFile
     fun provideSkyLockerDBFile(@ApplicationContext context: Context): File {
         return File(context.filesDir, SkyLockerManager.DB_FILE_NAME)
-    }
-
-    @Provides
-    @Singleton
-    fun provideResourceManager(@ApplicationContext context: Context): ResourceManager {
-        return ResourceManager(context)
     }
 
     @Provides

@@ -61,11 +61,11 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
         val menuItem = menu.findItem(R.id.switchItem)
         val view = MenuItemCompat.getActionView(menuItem)
         lockingSwitch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
-        lockingSwitch?.let {
-            it.setOnCheckedChangeListener { _, checked ->
-                presenter.onLockChangedAction(checked)
-            }
+        lockingSwitch?.setOnCheckedChangeListener { _, checked ->
+             presenter.onLockChangedAction(checked)
         }
+
+        presenter.requestLockStateUpdate()
         return true
     }
 
@@ -73,13 +73,16 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
         // show / hide controls depending on active user exists
         val USER_AVAILABLE_TAG = getString(R.string.user_authorized)
         val USER_NOT_AVAILABLE_TAG = getString(R.string.user_not_authorized)
-        for (childIndex in 0..settingsConstraintLayout.childCount - 1) {
-            val child = settingsConstraintLayout.getChildAt(childIndex)
-            when (child.tag) {
-                USER_AVAILABLE_TAG -> child.visibility = if (authorized) View.VISIBLE else View.GONE
-                USER_NOT_AVAILABLE_TAG -> child.visibility = if (authorized) View.GONE else View.VISIBLE
-            }
-        }
+
+        // change visibility
+        (0..settingsConstraintLayout.childCount - 1)
+                .map { settingsConstraintLayout.getChildAt(it) }
+                .forEach {
+                    when (it.tag) {
+                        USER_AVAILABLE_TAG -> it.visibility = if (authorized) View.VISIBLE else View.GONE
+                        USER_NOT_AVAILABLE_TAG -> it.visibility = if (authorized) View.GONE else View.VISIBLE
+                    }
+                }
 
         // change constraints
         val constraintSet = ConstraintSet()
@@ -98,7 +101,7 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     }
 
     override fun setLockEnabled(enabled: Boolean) {
-        lockingSwitch?.let { it.isChecked = enabled }
+        lockingSwitch?.isChecked = enabled
     }
 
     override fun setUseTop1000Words(use: Boolean) {
@@ -110,13 +113,13 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     }
 
     override fun showProgressDialog(message: String) {
-        if (progressDialog?.getWindow() == null) {
+        if (progressDialog?.window == null) {
             progressDialog = ProgressDialog(this, ProgressDialog.STYLE_SPINNER)
         }
         progressDialog?.let {
             it.setCancelable(false)
             it.setMessage(message)
-            if (!it.isShowing()) {
+            if (!it.isShowing) {
                 it.show()
             }
         }

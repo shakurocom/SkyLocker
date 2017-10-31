@@ -4,9 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
-import com.shakuro.skylocker.LockScreenActivity
 import com.shakuro.skylocker.SkyLockerApp
 import com.shakuro.skylocker.model.SkyLockerManager
+import com.shakuro.skylocker.presentation.quiz.QuizActivity
 import javax.inject.Inject
 
 
@@ -28,7 +28,7 @@ class LockscreenIntentReceiver : BroadcastReceiver() {
 
     // Display lock screen
     private fun startLockscreen(context: Context) {
-        val intent = Intent(context, LockScreenActivity::class.java)
+        val intent = Intent(context, QuizActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
 

@@ -1,7 +1,6 @@
 package ru.terrakok.gitlabclient.model.system
 
 import android.content.Context
-import javax.inject.Inject
 
 class ResourceManager constructor(private val context: Context) {
 

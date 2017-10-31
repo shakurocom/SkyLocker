@@ -5,11 +5,7 @@ import com.shakuro.skylocker.ui.BlurredImageLoader
 import dagger.Module
 import dagger.Provides
 import java.io.File
-import javax.inject.Qualifier
 import javax.inject.Singleton
-
-@Qualifier
-annotation class BlurredImageFile
 
 @Module(includes = arrayOf(ContextModule::class))
 class BlurredImageModule {

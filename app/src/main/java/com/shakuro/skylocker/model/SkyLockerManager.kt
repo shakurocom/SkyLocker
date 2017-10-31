@@ -15,11 +15,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
 import java.util.concurrent.TimeUnit
 
-private const val MIN_ALTERNATIVES_COUNT = 3
-private const val VIEW_ALTERNATIVES_COUNT = 3
+const val MIN_ALTERNATIVES_COUNT = 3
+const val VIEW_ALTERNATIVES_COUNT = 3
 
 class SkyLockerManager(private val skyEngApi: SkyEngApi,
                        private val preferences: SharedPreferences,
@@ -138,18 +137,6 @@ class SkyLockerManager(private val skyEngApi: SkyEngApi,
         }
         builder.orderRaw("RANDOM()").limit(1).build()
         return builder.list()?.firstOrNull()
-    }
-
-    fun answerWithAlternatives(meaning: Meaning): List<String> {
-        val result = mutableListOf<String>()
-        result.add(meaning.text)
-
-        val alternatives = meaning.alternatives
-        for (i in 0..Math.min(VIEW_ALTERNATIVES_COUNT - 1, alternatives.size - 1)) {
-            result.add(alternatives[i].text)
-        }
-        Collections.shuffle(result)
-        return result
     }
 
     fun activeUser(): User? {

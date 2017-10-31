@@ -5,6 +5,7 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.model.SkyLockerManager
+import com.shakuro.skylocker.ui.BlurredImageLoader
 import ru.terrakok.gitlabclient.model.system.LockServiceManager
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 import javax.inject.Inject
@@ -21,13 +22,19 @@ class SettingsPresenter : MvpPresenter<SettingsView>() {
     @Inject
     lateinit var lockServiceManager: LockServiceManager
 
+    @Inject
+    lateinit var blurredImageLoader: BlurredImageLoader
+
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         viewState.setLockEnabled(lockServiceManager.isLockServiceActive())
 
         if (skyLockerManager.lockingEnabled && !lockServiceManager.isLockServiceActive()) {
             lockServiceManager.startLockService()
+            viewState.setLockEnabled(true)
         }
+
+        blurredImageLoader.genBlurredBgImageIfNotExistsAsync()
     }
 
     fun onConnectAction(email: String?, token: String?) {
@@ -90,6 +97,10 @@ class SettingsPresenter : MvpPresenter<SettingsView>() {
     fun onUseUserWordsAction(use: Boolean) {
         skyLockerManager.useUserWords = use
         checkWordsExist()
+    }
+
+    fun requestLockStateUpdate() {
+        viewState.setLockEnabled(lockServiceManager.isLockServiceActive())
     }
 
     private fun checkWordsExist() {
