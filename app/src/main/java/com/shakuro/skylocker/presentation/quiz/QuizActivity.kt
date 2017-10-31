@@ -26,6 +26,9 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
         return presenter
     }
 
+    private var currentAnswerView: TextView? = null
+
+
     // Set appropriate flags to make the screen appear over the keyguard
     override fun onAttachedToWindow() {
         window.addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED or LayoutParams.FLAG_DISMISS_KEYGUARD)
@@ -72,14 +75,23 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
     override fun addAnswer(answer: Answer) {
         val answerView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, this.flowLayout, false) as TextView
         answerView.text = answer.text
+        answerView.tag = answer
         answerView.setOnClickListener {
-            presenter.checkAnswer(answer) { right ->
-                val answerBackground = if (right) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
-                answerView.setBackgroundResource(answerBackground)
-                answerView.setTextColor(Color.WHITE)
-            }
+            currentAnswerView = answerView
+            presenter.checkAnswer(answer)
         }
         this.flowLayout.addView(answerView)
+    }
+
+    override fun onAnswerChecked(answer: Answer, right: Boolean) {
+        currentAnswerView?.let {
+            if (it.tag == answer) {
+                val answerBackground = if (right) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
+                it.setBackgroundResource(answerBackground)
+                it.setTextColor(Color.WHITE)
+            }
+        }
+        currentAnswerView = null
     }
 
     override fun disableControls() {

@@ -1,7 +1,6 @@
 package com.shakuro.skylocker.presentation.quiz
 
 import android.graphics.Bitmap
-import android.view.View
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
@@ -14,6 +13,8 @@ interface QuizView : MvpView {
     fun clearAnswers()
 
     fun addAnswer(answer: Answer)
+
+    fun onAnswerChecked(answer: Answer, right: Boolean)
 
     fun setBackgroundImage(image: Bitmap)
 

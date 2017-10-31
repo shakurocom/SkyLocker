@@ -24,11 +24,7 @@ class QuizPresenter : MvpPresenter<QuizView>() {
 
     @Inject
     lateinit var ringStateManager: RingStateManager
-
-    lateinit var ringStateSubscription: Disposable
-
-    private var currentMeaning: Meaning? = null
-
+    var ringStateSubscription: Disposable? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -44,28 +40,11 @@ class QuizPresenter : MvpPresenter<QuizView>() {
 
     override fun onDestroy() {
         super.onDestroy()
-        ringStateSubscription.dispose()
+        ringStateSubscription?.dispose()
     }
 
-    fun showQuiz() {
-        currentMeaning = skyLockerManager.randomMeaning()
-        val meaning = currentMeaning
-
-        if (meaning != null) {
-            viewState.setQuizTranslation(meaning.translation.capitalize())
-            viewState.setQuizDefinition(meaning.definition.capitalize())
-
-            viewState.clearAnswers()
-            quizAnswers(meaning).forEach {
-                viewState.addAnswer(it)
-            }
-        } else {
-            skipQuiz()
-        }
-    }
-
-    fun checkAnswer(answer: Answer, callback: (Boolean) -> Unit) {
-        callback.invoke(answer.right)
+    fun checkAnswer(answer: Answer) {
+        viewState.onAnswerChecked(answer, answer.right)
         viewState.disableControls()
 
         val delay = if (answer.right) 500L else 1000L
@@ -83,6 +62,22 @@ class QuizPresenter : MvpPresenter<QuizView>() {
             if (it.hasExtra("kill") && it.extras.getInt("kill") == 1) {
                 skipQuiz()
             }
+        }
+    }
+
+    private fun showQuiz() {
+        val meaning = skyLockerManager.randomMeaning()
+
+        if (meaning != null) {
+            viewState.setQuizTranslation(meaning.translation.capitalize())
+            viewState.setQuizDefinition(meaning.definition.capitalize())
+
+            viewState.clearAnswers()
+            quizAnswers(meaning).forEach {
+                viewState.addAnswer(it)
+            }
+        } else {
+            skipQuiz()
         }
     }
 
