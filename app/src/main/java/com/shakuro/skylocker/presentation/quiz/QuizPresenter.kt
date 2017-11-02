@@ -35,21 +35,24 @@ class QuizPresenter : BasePresenter<QuizView>() {
         // skip quiz on phone ringing
         ringStateManager.register()
                 .subscribe({ skipQuiz() },
-                        { error -> /* ignore */ })
+                        { error -> println("ringState error: ${error.localizedMessage}") })
                 .addTo(disposeOnDestroy)
 
         // show quiz
         quizInteractor.getQuiz()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( { quiz -> showQuiz(quiz) },
-                        { error -> skipQuiz() })
+                .subscribe({ quiz -> showQuiz(quiz) },
+                        {
+                            error -> skipQuiz()
+                            println("quiz skipped with error: ${error.localizedMessage}")
+                        })
                 .addTo(disposeOnDestroy)
     }
 
     fun onBackgroundImageRequest() {
         quizBgImageLoader.loadBgImage()
                 .subscribe({ image -> viewState.setBackgroundImage(image) },
-                        { error -> /* ignore */ })
+                        { error -> println("imageLoader error: ${error.localizedMessage}") })
                 .addTo(disposeOnDestroy)
     }
 
