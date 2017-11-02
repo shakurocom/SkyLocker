@@ -12,7 +12,7 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.appComponent
+import com.shakuro.skylocker.extension.appComponent
 import kotlinx.android.synthetic.main.activity_settings.*
 
 

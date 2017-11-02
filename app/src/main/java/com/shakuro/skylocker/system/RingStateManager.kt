@@ -8,25 +8,25 @@ import io.reactivex.Observable
 class RingStateManager(val context: Context) {
 
     fun register(): Observable<Unit> {
-        return Observable.create<Unit> { observer ->
+        return Observable.create<Unit> { emitter ->
             try {
-                val manager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
                 val listener: PhoneStateListener = object : PhoneStateListener() {
 
                     override fun onCallStateChanged(state: Int, incomingNumber: String) {
                         super.onCallStateChanged(state, incomingNumber)
                         when (state) {
-                            TelephonyManager.CALL_STATE_RINGING -> observer.onNext(Unit)
+                            TelephonyManager.CALL_STATE_RINGING -> emitter.onNext(Unit)
                         }
                     }
                 }
                 // subscribe for ringing state
-                manager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
                 // unsubscribe on dispose
-                observer.setCancellable { manager.listen(listener, PhoneStateListener.LISTEN_NONE) }
+                emitter.setCancellable { telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE) }
             } catch (error: Throwable) {
-                observer.onError(error)
+                emitter.onError(error)
             }
-        }.publish()
+        }
     }
 }

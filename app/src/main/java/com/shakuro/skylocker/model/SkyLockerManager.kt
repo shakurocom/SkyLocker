@@ -3,11 +3,11 @@ package com.shakuro.skylocker.model
 import android.content.Context
 import android.content.SharedPreferences
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.model.entities.*
+import com.shakuro.skylocker.model.models.db.*
 import com.shakuro.skylocker.model.skyeng.SkyEngApi
-import com.shakuro.skylocker.model.skyeng.SkyEngMeaning
-import com.shakuro.skylocker.model.skyeng.SkyEngUserMeaning
-import com.shakuro.skylocker.model.skyeng.SkyEngWord
+import com.shakuro.skylocker.model.models.skyeng.SkyEngMeaning
+import com.shakuro.skylocker.model.models.skyeng.SkyEngUserMeaning
+import com.shakuro.skylocker.model.models.skyeng.SkyEngWord
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import retrofit2.Call

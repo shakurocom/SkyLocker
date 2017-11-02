@@ -1,5 +1,7 @@
 package com.shakuro.skylocker.model.skyeng
 
+import com.shakuro.skylocker.model.models.skyeng.SkyEngMeaning
+import com.shakuro.skylocker.model.models.skyeng.SkyEngWord
 import retrofit2.Call
 import retrofit2.Converter
 import retrofit2.Retrofit

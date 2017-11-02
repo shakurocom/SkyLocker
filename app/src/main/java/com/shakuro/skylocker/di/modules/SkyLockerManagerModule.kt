@@ -3,14 +3,18 @@ package com.shakuro.skylocker.di.modules
 import android.content.Context
 import android.content.SharedPreferences
 import com.shakuro.skylocker.R
+import com.shakuro.skylocker.model.quiz.QuizInteractor
+import com.shakuro.skylocker.model.settings.SettingsInteractor
 import com.shakuro.skylocker.model.SkyLockerManager
-import com.shakuro.skylocker.model.entities.DaoMaster
-import com.shakuro.skylocker.model.entities.DaoSession
+import com.shakuro.skylocker.model.models.db.DaoMaster
+import com.shakuro.skylocker.model.models.db.DaoSession
+import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.model.skyeng.SkyEngApi
 import dagger.Module
 import dagger.Provides
 import org.apache.commons.io.IOUtils
-import ru.terrakok.gitlabclient.model.system.LockServiceManager
+import com.shakuro.skylocker.system.LockServiceManager
+import ru.terrakok.gitlabclient.model.system.ResourceManager
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Singleton
@@ -50,7 +54,18 @@ class SkyLockerManagerModule {
 
     @Provides
     @Singleton
-    fun provideLockServiceManager(@ApplicationContext context: Context): LockServiceManager {
-        return LockServiceManager(context)
-    }
+    fun provideLockServiceManager(@ApplicationContext context: Context) = LockServiceManager(context)
+
+    @Provides
+    @Singleton
+    fun provideSettingsInteractor(slManager: SkyLockerManager, lockServiceManager: LockServiceManager, sr: SettingsRepository, rm: ResourceManager) =
+        SettingsInteractor(slManager, lockServiceManager, sr, rm)
+
+    @Provides
+    @Singleton
+    fun provideQuizInteractor(skyLockerManager: SkyLockerManager) = QuizInteractor(skyLockerManager)
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(preferences: SharedPreferences)= SettingsRepository(preferences)
 }

@@ -10,12 +10,8 @@
         android:id="@+id/backgroundImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/overlayColor" />
+        android:scaleType="centerCrop"
+        android:background="#4990e2"/>
 
     <TextView
         android:layout_width="match_parent"

@@ -15,6 +15,3 @@ class SkyLockerApp: Application() {
         appComponent.inject(this)
     }
 }
-
-val Application.appComponent: AppComponent
-       get() = (this as SkyLockerApp).appComponent

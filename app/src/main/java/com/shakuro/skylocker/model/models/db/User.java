@@ -1,4 +1,4 @@
-package com.shakuro.skylocker.model.entities;
+package com.shakuro.skylocker.model.models.db;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;

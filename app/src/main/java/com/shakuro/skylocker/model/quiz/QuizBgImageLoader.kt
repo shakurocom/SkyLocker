@@ -1,4 +1,4 @@
-package com.shakuro.skylocker.ui
+package com.shakuro.skylocker.model.quiz
 
 import android.app.WallpaperManager
 import android.content.Context
@@ -9,50 +9,45 @@ import android.support.v8.renderscript.Allocation
 import android.support.v8.renderscript.Element
 import android.support.v8.renderscript.RenderScript
 import android.support.v8.renderscript.ScriptIntrinsicBlur
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
+import io.reactivex.Completable
+import io.reactivex.Single
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
 
-class BlurredImageLoader(private val appContext: Context, private val imageFile: File) {
+class QuizBgImageLoader(private val appContext: Context, private val imageFile: File) {
 
     companion object {
         const val FILE_NAME = "blurred_bg.png"
     }
 
-    fun genBlurredBgImageIfNotExistsAsync() = async(CommonPool) {
-        if (!imageFile.exists()) {
-            try {
-                val image = genBlurredBgImage()
-                saveImage(image, imageFile)
-            } catch (e: Throwable) {
-                println("Error: ${e.localizedMessage}")
+    fun createBgImage(): Completable {
+        return Completable.create { emitter ->
+            if (!imageFile.exists()) {
+                try {
+                    renderBlurredBgImage(imageFile)
+                    emitter.onComplete()
+                } catch (e: Throwable) {
+                    emitter.onError(e)
+                }
+            } else {
+                emitter.onComplete()
             }
         }
     }
 
-    fun getBlurredBgImage(): Bitmap? {
-        var result: Bitmap? = null
-        if (imageFile.exists()) {
+    fun loadBgImage(): Single<Bitmap> {
+        return createBgImage().andThen(Single.create<Bitmap> { emitter ->
             try {
-                result = BitmapFactory.decodeFile(imageFile.absolutePath)
+                val image = BitmapFactory.decodeFile(imageFile.absolutePath)
+                emitter.onSuccess(image)
             } catch (e: Throwable) {
-                println("Error: ${e.localizedMessage}")
+                emitter.onError(e)
             }
-        }
-        if (result == null) {
-            try {
-                result = genBlurredBgImage()
-                saveImage(result, imageFile)
-            } catch (e: Throwable) {
-                println("Error: ${e.localizedMessage}")
-            }
-        }
-        return result
+        })
     }
 
-    private fun genBlurredBgImage(): Bitmap {
+    private fun renderBlurredBgImage(imageFile: File): Bitmap {
         // get desktop image
         val wallpaperManager = WallpaperManager.getInstance(appContext)
         val drawable = wallpaperManager.drawable
@@ -81,6 +76,8 @@ class BlurredImageLoader(private val appContext: Context, private val imageFile:
         outputAllocation.copyTo(blurredBitmap)
         inputAllocation.destroy()
         outputAllocation.destroy()
+
+        saveImage(blurredBitmap, imageFile)
 
         return blurredBitmap
     }

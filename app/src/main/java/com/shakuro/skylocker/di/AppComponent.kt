@@ -1,7 +1,7 @@
 package com.shakuro.skylocker.di
 
 import com.shakuro.skylocker.SkyLockerApp
-import com.shakuro.skylocker.di.modules.BlurredImageModule
+import com.shakuro.skylocker.di.modules.QuizModule
 import com.shakuro.skylocker.di.modules.SkyLockerManagerModule
 import com.shakuro.skylocker.lock.BootCompletedIntentReceiver
 import com.shakuro.skylocker.lock.LockscreenIntentReceiver
@@ -12,7 +12,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = arrayOf(SkyLockerManagerModule::class, BlurredImageModule::class))
+@Component(modules = arrayOf(SkyLockerManagerModule::class, QuizModule::class))
 interface AppComponent {
     fun inject(application: SkyLockerApp)
     fun inject(settingsPresenter: SettingsPresenter)

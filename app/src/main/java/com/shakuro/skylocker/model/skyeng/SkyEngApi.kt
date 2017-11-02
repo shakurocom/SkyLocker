@@ -1,32 +1,9 @@
 package com.shakuro.skylocker.model.skyeng
 
+import com.shakuro.skylocker.model.models.skyeng.SkyEngError
+import com.shakuro.skylocker.model.models.skyeng.SkyEngUserMeaning
 import com.squareup.moshi.Moshi
 import retrofit2.Response
-
-data class SkyEngTranslation(val text: String?)
-
-data class SkyEngAlternativeTranslation(
-        val text: String?,
-        val translation: SkyEngTranslation?)
-
-data class SkyEngUserMeaning(val meaningId: Long, val progress: Float)
-
-data class SkyEngMeaning(
-        val id: Long,
-        val text: String?,
-        val wordId: Long?,
-        val translation: SkyEngTranslation?,
-        val definition: SkyEngTranslation?,
-        val alternativeTranslations: MutableList<SkyEngAlternativeTranslation>?)
-
-data class SkyEngWord(
-        val id: Long,
-        val text: String,
-        val meanings: MutableList<SkyEngMeaning>)
-
-
-data class SkyEngErrorMessage(val message: String?)
-data class SkyEngError(val errors: MutableList<SkyEngErrorMessage>?)
 
 
 class SkyEngApi(val dictionaryApi: SkyEngDictionaryApi, val userApi: SkyEngUserApi) {

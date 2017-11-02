@@ -1,56 +1,67 @@
 package com.shakuro.skylocker.presentation.quiz
 
 import android.content.Intent
-import android.os.Handler
+import android.view.View
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
-import com.shakuro.skylocker.model.SkyLockerManager
-import com.shakuro.skylocker.model.VIEW_ALTERNATIVES_COUNT
-import com.shakuro.skylocker.model.entities.Meaning
+import com.shakuro.skylocker.entities.Answer
+import com.shakuro.skylocker.entities.Quiz
+import com.shakuro.skylocker.extension.addTo
+import com.shakuro.skylocker.model.quiz.QuizBgImageLoader
+import com.shakuro.skylocker.model.quiz.QuizInteractor
+import com.shakuro.skylocker.presentation.common.BasePresenter
 import com.shakuro.skylocker.system.RingStateManager
-import com.shakuro.skylocker.ui.BlurredImageLoader
-import io.reactivex.disposables.Disposable
-import java.util.*
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @InjectViewState
-class QuizPresenter : MvpPresenter<QuizView>() {
+class QuizPresenter : BasePresenter<QuizView>() {
 
     @Inject
-    lateinit var skyLockerManager: SkyLockerManager
+    lateinit var quizInteractor: QuizInteractor
 
     @Inject
-    lateinit var blurredImageLoader: BlurredImageLoader
+    lateinit var quizBgImageLoader: QuizBgImageLoader
 
     @Inject
     lateinit var ringStateManager: RingStateManager
-    var ringStateSubscription: Disposable? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        val backgroundImage = blurredImageLoader.getBlurredBgImage()
-        backgroundImage?.let { viewState.setBackgroundImage(it) }
-
         // skip quiz on phone ringing
-        ringStateSubscription = ringStateManager.register().subscribe { skipQuiz() }
+        ringStateManager.register()
+                .subscribe({ skipQuiz() },
+                        { error -> /* ignore */ })
+                .addTo(disposeOnDestroy)
 
-        showQuiz()
+        // show quiz
+        quizInteractor.getQuiz()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( { quiz -> showQuiz(quiz) },
+                        { error -> skipQuiz() })
+                .addTo(disposeOnDestroy)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        ringStateSubscription?.dispose()
+    fun onBackgroundImageRequest() {
+        quizBgImageLoader.loadBgImage()
+                .subscribe({ image -> viewState.setBackgroundImage(image) },
+                        { error -> /* ignore */ })
+                .addTo(disposeOnDestroy)
     }
 
-    fun checkAnswer(answer: Answer) {
-        viewState.onAnswerChecked(answer, answer.right)
+    fun checkAnswer(answer: Answer, answerView: View) {
         viewState.disableControls()
+        viewState.updateSelectedAnswer(answer, answerView)
 
         val delay = if (answer.right) 500L else 1000L
-        Handler().postDelayed({
-            viewState.unlockDevice()
-        }, delay)
+        Observable.timer(delay, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { viewState.unlockDevice() }
+                .addTo(disposeOnDestroy)
     }
 
     fun onSkipAction() {
@@ -65,38 +76,16 @@ class QuizPresenter : MvpPresenter<QuizView>() {
         }
     }
 
-    private fun showQuiz() {
-        val meaning = skyLockerManager.randomMeaning()
-
-        if (meaning != null) {
-            viewState.setQuizTranslation(meaning.translation.capitalize())
-            viewState.setQuizDefinition(meaning.definition.capitalize())
-
-            viewState.clearAnswers()
-            quizAnswers(meaning).forEach {
-                viewState.addAnswer(it)
-            }
-        } else {
-            skipQuiz()
+    private fun showQuiz(quiz: Quiz) {
+        viewState.clearAnswers()
+        viewState.setQuizTranslation(quiz.text)
+        viewState.setQuizDefinition(quiz.definition)
+        quiz.answers.forEach {
+            viewState.addAnswer(it)
         }
     }
 
     private fun skipQuiz() {
         viewState.unlockDevice()
-    }
-
-    private fun quizAnswers(meaning: Meaning): List<Answer> {
-        val answers = mutableListOf<Answer>()
-        answers.add(Answer(meaning.text.capitalize(), true))
-
-        val alternatives = meaning.alternatives
-        val alternativesCount = Math.min(VIEW_ALTERNATIVES_COUNT, alternatives.size)
-        (0..alternativesCount - 1).mapTo(answers) {
-            val alternative = alternatives[it]
-            Answer(alternative.text.capitalize(), false)
-        }
-
-        Collections.shuffle(answers)
-        return answers
     }
 }

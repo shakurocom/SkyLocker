@@ -20,5 +20,6 @@
     <string name="token_requested">Token requested</string>
     <string name="requesting_token">Requesting token…</string>
     <string name="connecting_skyeng">Connecting to SkyEng…</string>
+    <string name="disconnecting_skyeng">Disconnecting…</string>
     <string name="no_words_for_studying">There are no words for studying. SkyLocker disabled.</string>
 </resources>

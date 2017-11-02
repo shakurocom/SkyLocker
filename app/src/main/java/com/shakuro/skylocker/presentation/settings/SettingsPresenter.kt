@@ -1,132 +1,98 @@
 package com.shakuro.skylocker.presentation.settings
 
-import android.util.Patterns
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.model.SkyLockerManager
-import com.shakuro.skylocker.ui.BlurredImageLoader
-import ru.terrakok.gitlabclient.model.system.LockServiceManager
+import com.shakuro.skylocker.extension.addTo
+import com.shakuro.skylocker.model.settings.SettingsInteractor
+import com.shakuro.skylocker.presentation.common.BasePresenter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter : MvpPresenter<SettingsView>() {
+class SettingsPresenter : BasePresenter<SettingsView>() {
 
     @Inject
-    lateinit var skyLockerManager: SkyLockerManager
+    lateinit var settingsInteractor: SettingsInteractor
 
     @Inject
     lateinit var resourceManager: ResourceManager
 
-    @Inject
-    lateinit var lockServiceManager: LockServiceManager
-
-    @Inject
-    lateinit var blurredImageLoader: BlurredImageLoader
-
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        viewState.setLockEnabled(lockServiceManager.isLockServiceActive())
 
-        if (skyLockerManager.lockingEnabled && !lockServiceManager.isLockServiceActive()) {
-            lockServiceManager.startLockService()
-            viewState.setLockEnabled(true)
-        }
+        viewState.setLockEnabled(settingsInteractor.lockingEnabled)
+        viewState.setUseTop1000Words(settingsInteractor.useTop1000Words)
+        viewState.setUseUserWords(settingsInteractor.useUserWords)
+        refreshConnectedState()
 
-        refresAuthorizedState()
-        viewState.setUseTop1000Words(skyLockerManager.useTop1000Words)
-        viewState.setUseUserWords(skyLockerManager.useUserWords)
+        settingsInteractor.noQuizesObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( { viewState.showMessage(getString(R.string.no_words_for_studying)) },
+                        { error -> showError(error) })
+                .addTo(disposeOnDestroy)
 
-        blurredImageLoader.genBlurredBgImageIfNotExistsAsync()
-    }
-
-    fun onConnectAction(email: String?, token: String?) {
-        if (email == null || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            viewState.showError(getString(R.string.invalid_e_mail))
-            return
-        }
-
-        if (token == null || token.trim().isEmpty()) {
-            viewState.showError(getString(R.string.token_is_empty))
-            return
-        }
-
-        viewState.showProgressDialog(getString(R.string.connecting_skyeng))
-        skyLockerManager.refreshUserMeanings(email, token, { _, error ->
-            viewState.hideProgressDialog()
-            if (error == null) {
-                refresAuthorizedState()
-            } else {
-                viewState.showError(error.localizedMessage)
-            }
-        })
-    }
-
-    fun onDisconnectAction() {
-        skyLockerManager.disconnectActiveUser()
-        refresAuthorizedState()
-        checkWordsExist()
-    }
-
-    fun onRequestTokenAction(email: String?) {
-        if (email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            viewState.showProgressDialog(getString(R.string.requesting_token))
-            skyLockerManager.requestToken(email, { error ->
-                viewState.hideProgressDialog()
-                if (error == null) {
-                    viewState.showMessage(getString(R.string.token_requested))
-                } else {
-                    viewState.showError(error.localizedMessage)
-                }
-            })
-        } else {
-            viewState.showError(getString(R.string.invalid_e_mail))
-        }
+        settingsInteractor.lockChangedObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ lock -> viewState.setLockEnabled(lock) },
+                        { error -> showError(error) })
+                .addTo(disposeOnDestroy)
     }
 
     fun onLockChangedAction(locked: Boolean) {
-        if (locked) {
-            lockServiceManager.startLockService()
-        } else {
-            lockServiceManager.stopLockService()
-        }
+        settingsInteractor.lockingEnabled = locked
+    }
+
+    fun onConnectAction(email: String?, token: String?) {
+        settingsInteractor.connectUser(email, token)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { viewState.showProgressDialog(getString(R.string.connecting_skyeng)) }
+                .doAfterTerminate { viewState.hideProgressDialog() }
+                .subscribe( { refreshConnectedState() },
+                        { error -> showError(error) })
+                .addTo(disposeOnDestroy)
+    }
+
+    fun onDisconnectAction() {
+        settingsInteractor.disconnectUser()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { viewState.showProgressDialog(getString(R.string.disconnecting_skyeng)) }
+                .doAfterTerminate { viewState.hideProgressDialog() }
+                .subscribe({ refreshConnectedState() },
+                        { error -> showError(error) })
+                .addTo(disposeOnDestroy)
+    }
+
+    fun onRequestTokenAction(email: String?) {
+        settingsInteractor.requestToken(email)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { viewState.showProgressDialog(getString(R.string.requesting_token)) }
+                .doAfterTerminate { viewState.hideProgressDialog() }
+                .subscribe({ viewState.showMessage(getString(R.string.token_requested)) },
+                        { error -> showError(error) })
+                .addTo(disposeOnDestroy)
     }
 
     fun onUseTop1000WordsAction(use: Boolean) {
-        skyLockerManager.useTop1000Words = use
-        checkWordsExist()
+        settingsInteractor.useTop1000Words = use
     }
 
     fun onUseUserWordsAction(use: Boolean) {
-        skyLockerManager.useUserWords = use
-        checkWordsExist()
+        settingsInteractor.useUserWords = use
     }
 
-    private fun checkWordsExist() {
-        with (skyLockerManager) {
-            if (lockingEnabled) {
-                if (randomMeaning() == null) {
-                    lockServiceManager.stopLockService()
-                    viewState.setLockEnabled(false)
-                    viewState.showMessage(getString(R.string.no_words_for_studying))
-                } else {
-                    if (useUserWords || useTop1000Words) {
-                        lockServiceManager.startLockService()
-                        viewState.setLockEnabled(true)
-                    }
-                }
-            }
-        }
+    private fun showError(error: Throwable) {
+        viewState.showError(error.localizedMessage)
     }
 
     private fun getString(id: Int) = resourceManager.getString(id)
 
-    private fun refresAuthorizedState() {
-        val user = skyLockerManager.activeUser()
-        viewState.setUserAuthorized(user != null)
-        user?.let {
-            viewState.setUserEmail(user.email)
+    private fun refreshConnectedState() {
+        val connected = settingsInteractor.connected
+        viewState.setUserAuthorized(connected)
+        if (connected) {
+            viewState.setUserEmail(settingsInteractor.email)
         }
     }
 }
