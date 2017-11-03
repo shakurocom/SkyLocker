@@ -12,7 +12,7 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.extension.appComponent
+import com.shakuro.skylocker.extension.componentsManager
 import kotlinx.android.synthetic.main.activity_settings.*
 
 
@@ -27,7 +27,7 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     @ProvidePresenter
     fun providePresenter(): SettingsPresenter {
         val presenter = SettingsPresenter()
-        application.appComponent.inject(presenter)
+        application.componentsManager.settingsComponent.inject(presenter)
         return presenter
     }
 
@@ -54,6 +54,11 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
         skyEngUserWordsCheckBox.setOnCheckedChangeListener { _, use ->
             presenter.onUseUserWordsAction(use)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        application.componentsManager.clearSettingsComponent()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

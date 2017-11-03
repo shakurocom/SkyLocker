@@ -1,4 +1,4 @@
-package com.shakuro.skylocker.di.modules
+package com.shakuro.skylocker.di.application
 
 import javax.inject.Qualifier
 
