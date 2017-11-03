@@ -10,10 +10,8 @@ import com.shakuro.skylocker.model.quiz.QuizBgImageLoader
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.presentation.common.BasePresenter
 import com.shakuro.skylocker.system.RingStateManager
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -51,6 +49,7 @@ class QuizPresenter : BasePresenter<QuizView>() {
 
     fun onBackgroundImageRequest() {
         quizBgImageLoader.loadBgImage()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ image -> viewState.setBackgroundImage(image) },
                         { error -> println("imageLoader error: ${error.localizedMessage}") })
                 .addTo(disposeOnDestroy)

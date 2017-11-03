@@ -3,11 +3,11 @@ package com.shakuro.skylocker.di
 import com.shakuro.skylocker.SkyLockerApp
 import com.shakuro.skylocker.di.modules.QuizModule
 import com.shakuro.skylocker.di.modules.SkyLockerManagerModule
-import com.shakuro.skylocker.lock.BootCompletedIntentReceiver
-import com.shakuro.skylocker.lock.LockscreenIntentReceiver
 import com.shakuro.skylocker.presentation.quiz.QuizActivity
 import com.shakuro.skylocker.presentation.quiz.QuizPresenter
 import com.shakuro.skylocker.presentation.settings.SettingsPresenter
+import com.shakuro.skylocker.system.services.BootCompletedIntentReceiver
+import com.shakuro.skylocker.system.services.LockscreenIntentReceiver
 import dagger.Component
 import javax.inject.Singleton
 

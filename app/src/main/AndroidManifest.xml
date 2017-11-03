@@ -44,11 +44,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".lock.LockscreenService" >
+        <service android:name="com.shakuro.skylocker.system.services.LockscreenService" >
         </service>
 
         <receiver
-            android:name=".lock.BootCompletedIntentReceiver"
+            android:name="com.shakuro.skylocker.system.services.BootCompletedIntentReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

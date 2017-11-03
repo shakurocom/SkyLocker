@@ -2,14 +2,14 @@ package com.shakuro.skylocker.model.settings
 
 import android.util.Patterns
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.model.SkyLockerManager
+import com.shakuro.skylocker.model.skyeng.SkyEngRepository
 import com.shakuro.skylocker.system.LockServiceManager
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 
-class SettingsInteractor(val skyLockerManager: SkyLockerManager,
+class SettingsInteractor(val skyEngRepository: SkyEngRepository,
                          val lockServiceManager: LockServiceManager,
                          val settingsRepository: SettingsRepository,
                          val resourceManager: ResourceManager) {
@@ -20,10 +20,10 @@ class SettingsInteractor(val skyLockerManager: SkyLockerManager,
         get() = lockServiceManager.lockServiceObservable
 
     val connected: Boolean
-        get() = skyLockerManager.activeUser() != null
+        get() = skyEngRepository.activeUser() != null
 
     val email: String
-        get() = skyLockerManager.activeUser()?.email ?: ""
+        get() = skyEngRepository.activeUser()?.email ?: ""
 
     var lockingEnabled: Boolean
         get() {
@@ -69,7 +69,7 @@ class SettingsInteractor(val skyLockerManager: SkyLockerManager,
                 emitter.onError(Error(resourceManager.getString(R.string.token_is_empty)))
                 return@create
             }
-            skyLockerManager.refreshUserMeanings(email, token, { _, error ->
+            skyEngRepository.refreshUserMeanings(email, token, { _, error ->
                 if (error == null) {
                     emitter.onComplete()
                 } else {
@@ -81,14 +81,15 @@ class SettingsInteractor(val skyLockerManager: SkyLockerManager,
 
     fun disconnectUser(): Completable {
         return Completable.fromRunnable {
-            skyLockerManager.disconnectActiveUser()
+            settingsRepository.locksCount = 0
+            skyEngRepository.disconnectActiveUser()
         }.subscribeOn(Schedulers.io())
     }
 
     fun requestToken(email: String?): Completable {
         return Completable.create { emitter ->
             if (email != null && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                skyLockerManager.requestToken(email, { error ->
+                skyEngRepository.requestToken(email, { error ->
                     if (error == null) {
                         emitter.onComplete()
                     } else {
@@ -102,7 +103,7 @@ class SettingsInteractor(val skyLockerManager: SkyLockerManager,
     }
 
     private fun checkLockServiceShouldStartOrStop() {
-        val noQuizes = skyLockerManager.randomMeaning() == null
+        val noQuizes = skyEngRepository.randomMeaning() == null
         if (noQuizes) {
             noQuizesObservable.onNext(Unit)
             lockServiceManager.stopLockService()

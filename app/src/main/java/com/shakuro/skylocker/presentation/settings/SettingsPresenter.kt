@@ -6,7 +6,6 @@ import com.shakuro.skylocker.extension.addTo
 import com.shakuro.skylocker.model.settings.SettingsInteractor
 import com.shakuro.skylocker.presentation.common.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 import javax.inject.Inject
 

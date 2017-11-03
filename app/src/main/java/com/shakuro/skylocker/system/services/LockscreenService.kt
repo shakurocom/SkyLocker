@@ -1,4 +1,4 @@
-package com.shakuro.skylocker.lock
+package com.shakuro.skylocker.system.services
 
 import android.app.Service
 import android.content.BroadcastReceiver

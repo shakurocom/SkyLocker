@@ -5,15 +5,16 @@ import android.content.SharedPreferences
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.model.settings.SettingsInteractor
-import com.shakuro.skylocker.model.SkyLockerManager
-import com.shakuro.skylocker.model.models.db.DaoMaster
-import com.shakuro.skylocker.model.models.db.DaoSession
 import com.shakuro.skylocker.model.settings.SettingsRepository
-import com.shakuro.skylocker.model.skyeng.SkyEngApi
+import com.shakuro.skylocker.model.skyeng.SkyEngDictionaryApi
+import com.shakuro.skylocker.model.skyeng.SkyEngRepository
+import com.shakuro.skylocker.model.skyeng.SkyEngUserApi
+import com.shakuro.skylocker.model.skyeng.models.db.DaoMaster
+import com.shakuro.skylocker.model.skyeng.models.db.DaoSession
+import com.shakuro.skylocker.system.LockServiceManager
 import dagger.Module
 import dagger.Provides
 import org.apache.commons.io.IOUtils
-import com.shakuro.skylocker.system.LockServiceManager
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 import java.io.File
 import java.io.FileOutputStream
@@ -24,10 +25,11 @@ class SkyLockerManagerModule {
 
     @Provides
     @Singleton
-    fun provideSkyLockerManager(skyEngApi: SkyEngApi,
-                                preferences: SharedPreferences,
-                                daoSession: DaoSession): SkyLockerManager {
-        return SkyLockerManager(skyEngApi, preferences, daoSession)
+    fun provideSkyLockerManager(skyEngDictionaryApi: SkyEngDictionaryApi,
+                                skyEngUserApi: SkyEngUserApi,
+                                settingsRepository: SettingsRepository,
+                                daoSession: DaoSession): SkyEngRepository {
+        return SkyEngRepository(skyEngDictionaryApi, skyEngUserApi, settingsRepository, daoSession)
     }
 
     @Provides
@@ -49,7 +51,7 @@ class SkyLockerManagerModule {
     @Singleton
     @SkyLockerDBFile
     fun provideSkyLockerDBFile(@ApplicationContext context: Context): File {
-        return File(context.filesDir, SkyLockerManager.DB_FILE_NAME)
+        return File(context.filesDir, SkyEngRepository.DB_FILE_NAME)
     }
 
     @Provides
@@ -58,12 +60,12 @@ class SkyLockerManagerModule {
 
     @Provides
     @Singleton
-    fun provideSettingsInteractor(slManager: SkyLockerManager, lockServiceManager: LockServiceManager, sr: SettingsRepository, rm: ResourceManager) =
+    fun provideSettingsInteractor(slManager: SkyEngRepository, lockServiceManager: LockServiceManager, sr: SettingsRepository, rm: ResourceManager) =
         SettingsInteractor(slManager, lockServiceManager, sr, rm)
 
     @Provides
     @Singleton
-    fun provideQuizInteractor(skyLockerManager: SkyLockerManager) = QuizInteractor(skyLockerManager)
+    fun provideQuizInteractor(skyEngRepository: SkyEngRepository, sr: SettingsRepository) = QuizInteractor(skyEngRepository, sr)
 
     @Provides
     @Singleton

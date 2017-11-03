@@ -11,8 +11,8 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.extension.appComponent
 import com.shakuro.skylocker.entities.Answer
+import com.shakuro.skylocker.extension.appComponent
 import kotlinx.android.synthetic.main.activity_lockscreen.*
 
 

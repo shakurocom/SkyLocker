@@ -11,6 +11,7 @@ import android.support.v8.renderscript.RenderScript
 import android.support.v8.renderscript.ScriptIntrinsicBlur
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
@@ -33,7 +34,7 @@ class QuizBgImageLoader(private val appContext: Context, private val imageFile: 
             } else {
                 emitter.onComplete()
             }
-        }
+        }.subscribeOn(Schedulers.io())
     }
 
     fun loadBgImage(): Single<Bitmap> {
@@ -44,7 +45,7 @@ class QuizBgImageLoader(private val appContext: Context, private val imageFile: 
             } catch (e: Throwable) {
                 emitter.onError(e)
             }
-        })
+        }).subscribeOn(Schedulers.io())
     }
 
     private fun renderBlurredBgImage(imageFile: File): Bitmap {

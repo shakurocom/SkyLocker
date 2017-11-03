@@ -1,6 +1,5 @@
 package com.shakuro.skylocker.di.modules
 
-import com.shakuro.skylocker.model.skyeng.SkyEngApi
 import com.shakuro.skylocker.model.skyeng.SkyEngDictionaryApi
 import com.shakuro.skylocker.model.skyeng.SkyEngUserApi
 import dagger.Module
@@ -12,11 +11,6 @@ import javax.inject.Singleton
 
 @Module
 class SkyEngApiModule {
-
-    @Provides
-    @Singleton
-    fun provideSkyEngApi(dictionaryApi: SkyEngDictionaryApi, userApi: SkyEngUserApi) =
-            SkyEngApi(dictionaryApi, userApi)
 
     @Provides
     @Singleton

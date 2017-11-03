@@ -3,7 +3,7 @@ package com.shakuro.skylocker.system
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import com.shakuro.skylocker.lock.LockscreenService
+import com.shakuro.skylocker.system.services.LockscreenService
 import io.reactivex.subjects.PublishSubject
 
 class LockServiceManager constructor(private val context: Context) {
