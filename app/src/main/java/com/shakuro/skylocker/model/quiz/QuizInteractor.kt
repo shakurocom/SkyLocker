@@ -7,8 +7,10 @@ import com.shakuro.skylocker.model.skyeng.SkyEngRepository
 import com.shakuro.skylocker.model.skyeng.models.db.Meaning
 import io.reactivex.Single
 import java.util.*
+import javax.inject.Inject
 
-class QuizInteractor(private val skyEngRepository: SkyEngRepository, private val settingsRepository: SettingsRepository) {
+class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRepository,
+                                         private val settingsRepository: SettingsRepository) {
 
     private val ALTERNATIVES_COUNT_TO_SHOW = 3
     private val QUIZES_COUNT_TO_REFRESH = 5

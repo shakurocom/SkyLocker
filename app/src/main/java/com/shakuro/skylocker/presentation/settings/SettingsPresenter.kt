@@ -10,13 +10,8 @@ import ru.terrakok.gitlabclient.model.system.ResourceManager
 import javax.inject.Inject
 
 @InjectViewState
-class SettingsPresenter : BasePresenter<SettingsView>() {
-
-    @Inject
-    lateinit var settingsInteractor: SettingsInteractor
-
-    @Inject
-    lateinit var resourceManager: ResourceManager
+class SettingsPresenter @Inject constructor(val settingsInteractor: SettingsInteractor,
+                                            val resourceManager: ResourceManager) : BasePresenter<SettingsView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()

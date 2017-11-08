@@ -12,8 +12,10 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.extension.componentsManager
+import com.shakuro.skylocker.di.Scopes
+import com.shakuro.skylocker.di.settings.SettingsModule
 import kotlinx.android.synthetic.main.activity_settings.*
+import toothpick.Toothpick
 
 
 class SettingsActivity : MvpAppCompatActivity(), SettingsView {
@@ -26,9 +28,9 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
 
     @ProvidePresenter
     fun providePresenter(): SettingsPresenter {
-        val presenter = SettingsPresenter()
-        application.componentsManager.settingsComponent.inject(presenter)
-        return presenter
+        return Toothpick.openScopes(Scopes.SKY_ENG_SCOPE, Scopes.SETTINGS_SCOPE).apply {
+            installModules(SettingsModule())
+        }.getInstance(SettingsPresenter::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +60,7 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
 
     override fun onDestroy() {
         super.onDestroy()
-        application.componentsManager.clearSettingsComponent()
+        Toothpick.closeScope(Scopes.SETTINGS_SCOPE)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

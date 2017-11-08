@@ -5,8 +5,9 @@ import android.content.Context
 import android.content.Intent
 import com.shakuro.skylocker.system.services.LockscreenService
 import io.reactivex.subjects.PublishSubject
+import javax.inject.Inject
 
-class LockServiceManager constructor(private val context: Context) {
+class LockServiceManager @Inject constructor(private val context: Context) {
 
     val lockServiceObservable: PublishSubject<Boolean> = PublishSubject.create()
 

@@ -4,8 +4,9 @@ import android.content.Context
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import io.reactivex.Observable
+import javax.inject.Inject
 
-class RingStateManager(val context: Context) {
+class RingStateManager @Inject constructor(private val context: Context) {
 
     fun register(): Observable<Unit> {
         return Observable.create<Unit> { emitter ->

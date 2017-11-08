@@ -3,20 +3,21 @@ package com.shakuro.skylocker.model.skyeng
 import com.shakuro.skylocker.model.skyeng.models.skyeng.SkyEngMeaning
 import com.shakuro.skylocker.model.skyeng.models.skyeng.SkyEngWord
 import retrofit2.Call
-import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import javax.inject.Inject
 
 interface SkyEngDictionaryApi {
 
     companion object {
         const val URL = "http://dictionary.skyeng.ru"
 
-        fun create(builder: Retrofit.Builder, converterFactory: Converter.Factory): SkyEngDictionaryApi {
-            return builder
+        fun create(): SkyEngDictionaryApi {
+            return Retrofit.Builder()
                     .baseUrl(URL)
-                    .addConverterFactory(converterFactory)
+                    .addConverterFactory(MoshiConverterFactory.create())
                     .build()
                     .create(SkyEngDictionaryApi::class.java)
         }
