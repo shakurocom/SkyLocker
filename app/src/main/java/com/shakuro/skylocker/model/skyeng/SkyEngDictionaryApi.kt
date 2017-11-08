@@ -14,7 +14,7 @@ interface SkyEngDictionaryApi {
     companion object {
         const val URL = "http://dictionary.skyeng.ru"
 
-        @Inject fun create(): SkyEngDictionaryApi {
+        fun create(): SkyEngDictionaryApi {
             return Retrofit.Builder()
                     .baseUrl(URL)
                     .addConverterFactory(MoshiConverterFactory.create())

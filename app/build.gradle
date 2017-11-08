@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'kotlin-android'
 apply plugin: "kotlin-android-extensions"
-apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'kotlin-kapt'
 
 repositories {
@@ -31,9 +31,9 @@ android {
         }
     }
 
-    sourceSets {
-        main.java.srcDirs += 'build/generated/source/greendao'
-    }
+//    sourceSets {
+//        main.java.srcDirs += 'build/generated/source/greendao'
+//    }
 
     kapt { generateStubs = true }
 
