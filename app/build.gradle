@@ -31,10 +31,6 @@ android {
         }
     }
 
-//    sourceSets {
-//        main.java.srcDirs += 'build/generated/source/greendao'
-//    }
-
     kapt { generateStubs = true }
 
     buildTypes {
