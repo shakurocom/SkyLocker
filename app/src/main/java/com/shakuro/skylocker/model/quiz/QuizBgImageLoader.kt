@@ -15,12 +15,11 @@ import io.reactivex.schedulers.Schedulers
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
+import javax.inject.Inject
 
-class QuizBgImageLoader(private val appContext: Context, private val imageFile: File) {
-
-    companion object {
-        const val FILE_NAME = "blurred_bg.png"
-    }
+class QuizBgImageLoader @Inject constructor(private val context: Context) {
+    private val FILE_NAME = "blurred_bg.png"
+    private val imageFile: File = File(context.filesDir, FILE_NAME)
 
     fun createBgImage(): Completable {
         return Completable.create { emitter ->
@@ -50,7 +49,7 @@ class QuizBgImageLoader(private val appContext: Context, private val imageFile: 
 
     private fun renderBlurredBgImage(imageFile: File): Bitmap {
         // get desktop image
-        val wallpaperManager = WallpaperManager.getInstance(appContext)
+        val wallpaperManager = WallpaperManager.getInstance(context)
         val drawable = wallpaperManager.drawable
         val inWidth = drawable.intrinsicWidth
         val inHeight = drawable.intrinsicHeight
@@ -67,7 +66,7 @@ class QuizBgImageLoader(private val appContext: Context, private val imageFile: 
 
         val blurredBitmap = Bitmap.createBitmap(bitmap)
 
-        val rs = RenderScript.create(appContext)
+        val rs = RenderScript.create(context)
         val blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
         val inputAllocation = Allocation.createFromBitmap(rs, bitmap)
         val outputAllocation = Allocation.createFromBitmap(rs, blurredBitmap)

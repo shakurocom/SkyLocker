@@ -2,8 +2,8 @@ package com.shakuro.skylocker.model.skyeng
 
 import com.shakuro.skylocker.model.skyeng.models.skyeng.SkyEngUserMeaning
 import retrofit2.Call
-import retrofit2.Converter
 import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.PUT
@@ -14,10 +14,10 @@ interface SkyEngUserApi {
     companion object {
         const val URL = "http://words.skyeng.ru"
 
-        fun create(builder: Retrofit.Builder, converterFactory: Converter.Factory): SkyEngUserApi {
-            return builder
+        fun create(): SkyEngUserApi {
+            return Retrofit.Builder()
                     .baseUrl(URL)
-                    .addConverterFactory(converterFactory)
+                    .addConverterFactory(MoshiConverterFactory.create())
                     .build()
                     .create(SkyEngUserApi::class.java)
         }

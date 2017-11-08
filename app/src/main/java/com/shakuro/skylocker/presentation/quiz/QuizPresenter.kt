@@ -16,16 +16,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @InjectViewState
-class QuizPresenter : BasePresenter<QuizView>() {
-
-    @Inject
-    lateinit var quizInteractor: QuizInteractor
-
-    @Inject
-    lateinit var quizBgImageLoader: QuizBgImageLoader
-
-    @Inject
-    lateinit var ringStateManager: RingStateManager
+class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
+                                        val quizBgImageLoader: QuizBgImageLoader,
+                                        val ringStateManager: RingStateManager) : BasePresenter<QuizView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()

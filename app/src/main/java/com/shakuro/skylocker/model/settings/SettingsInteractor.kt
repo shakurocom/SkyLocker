@@ -8,11 +8,12 @@ import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ru.terrakok.gitlabclient.model.system.ResourceManager
+import javax.inject.Inject
 
-class SettingsInteractor(val skyEngRepository: SkyEngRepository,
-                         val lockServiceManager: LockServiceManager,
-                         val settingsRepository: SettingsRepository,
-                         val resourceManager: ResourceManager) {
+class SettingsInteractor @Inject constructor(val skyEngRepository: SkyEngRepository,
+                                                 val lockServiceManager: LockServiceManager,
+                                                 val settingsRepository: SettingsRepository,
+                                                 val resourceManager: ResourceManager) {
 
     val noQuizesObservable: PublishSubject<Unit> = PublishSubject.create<Unit>()
 

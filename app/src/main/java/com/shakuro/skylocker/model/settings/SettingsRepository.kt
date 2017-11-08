@@ -1,8 +1,9 @@
 package com.shakuro.skylocker.model.settings
 
 import android.content.SharedPreferences
+import javax.inject.Inject
 
-class SettingsRepository(val preferences: SharedPreferences) {
+class SettingsRepository @Inject constructor(private  val preferences: SharedPreferences) {
 
     private val LOCKING_ENABLED = "LOCKING_ENABLED"
     private val USE_TOP_1000_WORDS_KEY = "USE_TOP_1000_WORDS_KEY"

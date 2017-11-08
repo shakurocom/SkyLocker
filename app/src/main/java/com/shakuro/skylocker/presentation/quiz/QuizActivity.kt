@@ -12,8 +12,10 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.entities.Answer
-import com.shakuro.skylocker.extension.componentsManager
+import com.shakuro.skylocker.di.Scopes
+import com.shakuro.skylocker.di.quiz.QuizModule
 import kotlinx.android.synthetic.main.activity_lockscreen.*
+import toothpick.Toothpick
 
 
 class QuizActivity : MvpAppCompatActivity(), QuizView {
@@ -23,9 +25,9 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
 
     @ProvidePresenter
     fun providePresenter(): QuizPresenter {
-        val quizPresenter = QuizPresenter()
-        application.componentsManager.quizComponent.inject(quizPresenter)
-        return quizPresenter
+        return Toothpick.openScopes(Scopes.SKY_ENG_SCOPE, Scopes.QUIZ_SCOPE).apply {
+            installModules(QuizModule())
+        }.getInstance(QuizPresenter::class.java)
     }
 
     // Set appropriate flags to make the screen appear over the keyguard
@@ -50,7 +52,7 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
 
     override fun onDestroy() {
         super.onDestroy()
-        application.componentsManager.clearQuizComponent()
+        Toothpick.closeScope(Scopes.QUIZ_SCOPE)
     }
 
     override fun onBackPressed() {

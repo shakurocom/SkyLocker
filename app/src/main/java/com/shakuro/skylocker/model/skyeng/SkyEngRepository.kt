@@ -16,11 +16,12 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import javax.inject.Inject
 
-class SkyEngRepository(private val dictionaryApi: SkyEngDictionaryApi,
-                       private val userApi: SkyEngUserApi,
-                       private val settingsRepository: SettingsRepository,
-                       private val daoSession: DaoSession) {
+class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDictionaryApi,
+                                           private val userApi: SkyEngUserApi,
+                                           private val settingsRepository: SettingsRepository,
+                                           private val daoSession: DaoSession) {
     private val MIN_ALTERNATIVES_COUNT = 3
 
     companion object {
