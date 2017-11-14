@@ -3,8 +3,8 @@ package com.shakuro.skylocker.system.services
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.di.Scopes
+import com.shakuro.skylocker.model.settings.SettingsRepository
 import toothpick.Toothpick
 import javax.inject.Inject
 

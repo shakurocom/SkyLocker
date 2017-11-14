@@ -12,18 +12,24 @@ import javax.inject.Inject
 class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRepository,
                                          private val settingsRepository: SettingsRepository) {
 
-    private val ALTERNATIVES_COUNT_TO_SHOW = 3
-    private val QUIZES_COUNT_TO_REFRESH = 5
+    companion object {
+        val ALTERNATIVES_COUNT_TO_SHOW = 3
+        val QUIZES_COUNT_TO_REFRESH = 5
+        val NO_QUIZES_ERROR = "There is no any quiz"
+    }
 
     fun getQuiz(): Single<Quiz> {
         return Single.fromCallable<Quiz> {
             checkRefreshRequired()
 
-            val meaning = skyEngRepository.randomMeaning()
+            val useTop1000Words = settingsRepository.useTop1000Words
+            val useUserWords = settingsRepository.useUserWords
+
+            val meaning = skyEngRepository.randomMeaning(useTop1000Words, useUserWords)
             if (meaning != null) {
                 Quiz(meaning.translation.capitalize(), meaning.definition.capitalize(), quizAnswers(meaning))
             } else {
-                throw Error("There is no any quiz")
+                throw Error(NO_QUIZES_ERROR)
             }
         }
     }

@@ -4,16 +4,17 @@ import android.util.Patterns
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.model.skyeng.SkyEngRepository
 import com.shakuro.skylocker.system.LockServiceManager
+import com.shakuro.skylocker.system.SchedulersProvider
 import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ru.terrakok.gitlabclient.model.system.ResourceManager
 import javax.inject.Inject
 
 class SettingsInteractor @Inject constructor(val skyEngRepository: SkyEngRepository,
-                                                 val lockServiceManager: LockServiceManager,
-                                                 val settingsRepository: SettingsRepository,
-                                                 val resourceManager: ResourceManager) {
+                                             val lockServiceManager: LockServiceManager,
+                                             val settingsRepository: SettingsRepository,
+                                             val resourceManager: ResourceManager,
+                                             val schedulersProvider: SchedulersProvider) {
 
     val noQuizesObservable: PublishSubject<Unit> = PublishSubject.create<Unit>()
 
@@ -77,14 +78,14 @@ class SettingsInteractor @Inject constructor(val skyEngRepository: SkyEngReposit
                     emitter.onError(error)
                 }
             })
-        }.subscribeOn(Schedulers.io())
+        }.subscribeOn(schedulersProvider.io())
     }
 
     fun disconnectUser(): Completable {
         return Completable.fromRunnable {
             settingsRepository.locksCount = 0
             skyEngRepository.disconnectActiveUser()
-        }.subscribeOn(Schedulers.io())
+        }.subscribeOn(schedulersProvider.io())
     }
 
     fun requestToken(email: String?): Completable {
@@ -100,11 +101,11 @@ class SettingsInteractor @Inject constructor(val skyEngRepository: SkyEngReposit
             } else {
                 emitter.onError(Error(resourceManager.getString(R.string.invalid_e_mail)))
             }
-        }.subscribeOn(Schedulers.io())
+        }.subscribeOn(schedulersProvider.io())
     }
 
     private fun checkLockServiceShouldStartOrStop() {
-        val noQuizes = skyEngRepository.randomMeaning() == null
+        val noQuizes = skyEngRepository.meaningsExist(useTop1000Words, useUserWords)
         if (noQuizes) {
             noQuizesObservable.onNext(Unit)
             lockServiceManager.stopLockService()
