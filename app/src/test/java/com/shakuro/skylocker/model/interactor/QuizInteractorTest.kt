@@ -1,6 +1,7 @@
 package com.shakuro.skylocker.model.interactor
 
 import com.nhaarman.mockito_kotlin.*
+import com.shakuro.skylocker.model.mocks.SettingsRepositoryMock
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.model.skyeng.SkyEngRepository
@@ -9,8 +10,6 @@ import com.shakuro.skylocker.model.skyeng.models.db.Meaning
 import com.shakuro.skylocker.model.skyeng.models.db.User
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.anyLong
 
 class QuizInteractorTest {
 
@@ -21,14 +20,7 @@ class QuizInteractorTest {
     @Before
     fun setUp() {
         skyEngRepository = mock<SkyEngRepository>()
-
-        var testLocksCount = 0L
-        settingsRepository = mock<SettingsRepository> {
-            // mock for getter
-            doAnswer { testLocksCount }.whenever(it).locksCount
-            // mock for setter
-            doAnswer { testLocksCount = it.arguments[0] as Long }.whenever(it).locksCount = anyLong()
-        }
+        settingsRepository = SettingsRepositoryMock.create()
 
         testMeaning = mock<Meaning> {
             on { translation } doReturn "translation"
@@ -55,19 +47,20 @@ class QuizInteractorTest {
         verify(skyEngRepository).randomMeaning(settingsRepository.useTop1000Words,
                 settingsRepository.useUserWords)
 
-        testObserver
-                .assertNoErrors()
-                .assertValueCount(1)
-                .assertValue { it.text == testMeaning.translation.capitalize() }
-                .assertValue { it.definition == testMeaning.definition.capitalize() }
-                .assertValue {
-                    // there should be only one right answer
-                    it.answers.filter { it.right == true }.size == 1
-                }
-                .assertValue {
-                    // count of answers should be ALTERNATIVES_COUNT_TO_SHOW + one right answer
-                    it.answers.size == QuizInteractor.ALTERNATIVES_COUNT_TO_SHOW + 1
-                }
+        testObserver.apply {
+            assertNoErrors()
+            assertValueCount(1)
+            assertValue { it.text == testMeaning.translation.capitalize() }
+            assertValue { it.definition == testMeaning.definition.capitalize() }
+            assertValue {
+                // there should be only one right answer
+                it.answers.filter { it.right == true }.size == 1
+            }
+            assertValue {
+                // count of answers should be ALTERNATIVES_COUNT_TO_SHOW + one right answer
+                it.answers.size == QuizInteractor.ALTERNATIVES_COUNT_TO_SHOW + 1
+            }
+        }
     }
 
     @Test
@@ -78,7 +71,8 @@ class QuizInteractorTest {
         val testObserver = quizInteractor.getQuiz().test()
         testObserver.awaitTerminalEvent()
 
-        verify(skyEngRepository).randomMeaning(anyBoolean(), anyBoolean())
+        verify(skyEngRepository)
+                .randomMeaning(settingsRepository.useTop1000Words, settingsRepository.useUserWords)
         testObserver
                 .assertError { it.message == QuizInteractor.NO_QUIZES_ERROR }
                 .assertNoValues()
@@ -92,19 +86,25 @@ class QuizInteractorTest {
         val quizInteractor = QuizInteractor(skyEngRepository, settingsRepository)
         (1..QuizInteractor.QUIZES_COUNT_TO_REFRESH).forEach {
             verify(skyEngRepository, never()).requestUserMeaningsUpdate()
-            quizInteractor.getQuiz().test().awaitTerminalEvent()
+            quizInteractor.getQuiz().test().apply {
+                awaitTerminalEvent()
+                assertNoErrors()
+            }
         }
         verify(skyEngRepository).requestUserMeaningsUpdate()
     }
 
     @Test
-    fun check_unauthorized_refresh_not_called() {
+    fun check_refresh_not_called() {
         whenever(skyEngRepository.randomMeaning(any(), any())).thenReturn(testMeaning)
         whenever(skyEngRepository.activeUser()).thenReturn(null)
 
         val quizInteractor = QuizInteractor(skyEngRepository, settingsRepository)
         (1..QuizInteractor.QUIZES_COUNT_TO_REFRESH).forEach {
-            quizInteractor.getQuiz().test().awaitTerminalEvent()
+            quizInteractor.getQuiz().test().apply {
+                awaitTerminalEvent()
+                assertNoErrors()
+            }
         }
         verify(skyEngRepository, never()).requestUserMeaningsUpdate()
     }

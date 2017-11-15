@@ -7,6 +7,7 @@ import android.support.v4.view.MenuItemCompat
 import android.support.v7.widget.SwitchCompat
 import android.view.Menu
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -22,6 +23,10 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     private var progressDialog: ProgressDialog? = null
     private var lockingSwitch: SwitchCompat? = null
     private var lockingEnabled = true
+
+    private val lockingSwitchCheckedListener = CompoundButton.OnCheckedChangeListener { _, checked ->
+        presenter.onLockChangedAction(checked)
+    }
 
     @InjectPresenter
     lateinit var presenter: SettingsPresenter
@@ -70,10 +75,8 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
         val view = MenuItemCompat.getActionView(menuItem)
         lockingSwitch = view.findViewById(R.id.switchForActionBar) as SwitchCompat
         lockingSwitch?.let {
-            it.setOnCheckedChangeListener { _, checked ->
-                presenter.onLockChangedAction(checked)
-            }
             it.isChecked = lockingEnabled
+            it.setOnCheckedChangeListener(lockingSwitchCheckedListener)
         }
         return true
     }
@@ -110,7 +113,11 @@ class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     }
 
     override fun setLockEnabled(enabled: Boolean) {
-        lockingSwitch?.isChecked = enabled
+        lockingSwitch?.apply {
+            setOnCheckedChangeListener(null) // we want listener only for user interactions
+            isChecked = enabled
+            setOnCheckedChangeListener(lockingSwitchCheckedListener) // return listener back
+        }
         lockingEnabled = enabled
     }
 
