@@ -9,7 +9,7 @@ import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 
-class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRepository,
+open class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRepository,
                                          private val settingsRepository: SettingsRepository) {
 
     companion object {
@@ -18,7 +18,7 @@ class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRep
         val NO_QUIZES_ERROR = "There is no any quiz"
     }
 
-    fun getQuiz(): Single<Quiz> {
+    open fun getQuiz(): Single<Quiz> {
         return Single.fromCallable<Quiz> {
             checkRefreshRequired()
 

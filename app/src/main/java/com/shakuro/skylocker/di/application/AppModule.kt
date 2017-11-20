@@ -17,7 +17,7 @@ class AppModule(context: Context) : Module() {
         bind(RingStateManager::class.java).singletonInScope()
         bind(LockServiceManager::class.java).singletonInScope()
         bind(SettingsRepository::class.java).singletonInScope()
-        bind(SchedulersProvider::class.java).to(AppSchedulers::class.java).singletonInScope()
+        bind(SchedulersProvider::class.java).toInstance(AppSchedulers())
 
         bind(SharedPreferences::class.java)
                 .toInstance(context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE))
