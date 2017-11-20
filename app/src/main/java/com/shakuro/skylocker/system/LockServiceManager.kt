@@ -9,16 +9,12 @@ import javax.inject.Inject
 
 class LockServiceManager @Inject constructor(private val context: Context) {
 
-    val lockServiceObservable: PublishSubject<Boolean> = PublishSubject.create()
-
     fun startLockService() {
         context.startService(Intent(context, LockscreenService::class.java))
-        lockServiceObservable.onNext(true)
     }
 
     fun stopLockService() {
         context.stopService(Intent(context, LockscreenService::class.java))
-        lockServiceObservable.onNext(false)
     }
 
     fun isLockServiceActive(): Boolean {

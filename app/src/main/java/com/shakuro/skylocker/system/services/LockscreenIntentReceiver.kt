@@ -4,9 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
+import com.shakuro.skylocker.di.Scopes
 import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.presentation.quiz.QuizActivity
-import com.shakuro.skylocker.di.Scopes
 import toothpick.Toothpick
 import javax.inject.Inject
 

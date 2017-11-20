@@ -20,7 +20,6 @@ import javax.inject.Inject
 
 class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDictionaryApi,
                                            private val userApi: SkyEngUserApi,
-                                           private val settingsRepository: SettingsRepository,
                                            private val daoSession: DaoSession) {
     private val MIN_ALTERNATIVES_COUNT = 3
 
@@ -85,12 +84,10 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
         }
     }
 
-    fun randomMeaning(): Meaning? {
+    fun randomMeaning(useTop1000Words: Boolean, useUserWords: Boolean): Meaning? {
         val user = activeUser()
         val builder = daoSession.meaningDao.queryBuilder()
 
-        val useTop1000Words = settingsRepository.useTop1000Words
-        val useUserWords = settingsRepository.useUserWords
         when {
             useTop1000Words && !useUserWords -> builder.where(MeaningDao.Properties.AddedByUserWithId.eq(0))
             !useTop1000Words && (useUserWords && user != null) -> builder.where(MeaningDao.Properties.AddedByUserWithId.eq(user.id))
@@ -98,6 +95,10 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
         }
         builder.orderRaw("RANDOM()").limit(1).build()
         return builder.list()?.firstOrNull()
+    }
+
+    fun meaningsExist(useTop1000Words: Boolean, useUserWords: Boolean): Boolean {
+        return (randomMeaning(useTop1000Words, useUserWords) != null)
     }
 
     fun activeUser(): User? {

@@ -10,15 +10,16 @@ import com.shakuro.skylocker.model.quiz.QuizBgImageLoader
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.presentation.common.BasePresenter
 import com.shakuro.skylocker.system.RingStateManager
+import com.shakuro.skylocker.system.SchedulersProvider
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @InjectViewState
 class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
                                         val quizBgImageLoader: QuizBgImageLoader,
-                                        val ringStateManager: RingStateManager) : BasePresenter<QuizView>() {
+                                        val ringStateManager: RingStateManager,
+                                        val schedulersProvider: SchedulersProvider) : BasePresenter<QuizView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -31,7 +32,7 @@ class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
 
         // show quiz
         quizInteractor.getQuiz()
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulersProvider.ui())
                 .subscribe({ quiz -> showQuiz(quiz) },
                         {
                             error -> skipQuiz()
@@ -42,7 +43,7 @@ class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
 
     fun onBackgroundImageRequest() {
         quizBgImageLoader.loadBgImage()
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulersProvider.ui())
                 .subscribe({ image -> viewState.setBackgroundImage(image) },
                         { error -> println("imageLoader error: ${error.localizedMessage}") })
                 .addTo(disposeOnDestroy)
@@ -54,7 +55,7 @@ class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
 
         val delay = if (answer.right) 500L else 1000L
         Observable.timer(delay, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(schedulersProvider.ui())
                 .subscribe { viewState.unlockDevice() }
                 .addTo(disposeOnDestroy)
     }

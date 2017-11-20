@@ -8,6 +8,9 @@ repositories {
     maven() {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
+    maven {
+        url "https://maven.google.com"
+    }
 }
 
 android {
@@ -29,6 +32,8 @@ android {
                 arguments = [toothpick_registry_package_name: 'com.shakuro.skylocker']
             }
         }
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     kapt { generateStubs = true }
@@ -52,17 +57,20 @@ greendao {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    // Support
+    compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    // Kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.17'
+    // ORM
     compile 'org.greenrobot:greendao:3.2.2'
+    // Retrofit
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile "com.squareup.retrofit2:converter-moshi:2.0.0"
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    // IO utils
     compile "commons-io:commons-io:2.4"
-    compile 'org.apmem.tools:layouts:1.9@aar'
 
     // RxJava
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
@@ -72,7 +80,30 @@ dependencies {
     compile 'com.arello-mobile:moxy-app-compat:1.5.3'
     kapt 'com.arello-mobile:moxy-compiler:1.5.3'
 
-    // Scopes
+    // DI
     compile "com.github.stephanenicolas.toothpick:toothpick-runtime:1.1.1"
     kapt "com.github.stephanenicolas.toothpick:toothpick-compiler:1.1.1"
+
+    // Unit tests
+    // JUnit
+    testCompile "junit:junit:4.12"
+    // Mockito
+    testCompile "org.mockito:mockito-core:2.8.9"
+    testCompile 'org.mockito:mockito-inline:2.8.9'
+    // Mockito Kotlin
+    testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
+
+    // Android tests
+    // annotations
+    androidTestCompile "com.android.support:support-annotations:25.4.0"
+    // Espresso
+    androidTestCompile "com.android.support.test:runner:1.0.1"
+    androidTestCompile "com.android.support.test:rules:1.0.1"
+    androidTestCompile "com.android.support.test.espresso:espresso-core:3.0.1"
+    // DI
+    androidTestCompile 'com.github.stephanenicolas.toothpick:toothpick-testing:1.1.1'
+    // Mockito
+    androidTestCompile 'org.mockito:mockito-android:2.8.9'
+    // Mockito Kotlin
+    androidTestCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }
