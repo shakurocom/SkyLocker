@@ -24,10 +24,7 @@ import io.reactivex.Single
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import toothpick.Toothpick
 import toothpick.config.Module
@@ -78,6 +75,14 @@ class QuizTest {
     }
 
     @Test
+    fun test_skip() {
+        activityRule.launchActivity(Intent())
+        onView(withId(R.id.skipQuizButton)).perform(click())
+        Assert.assertTrue(activityRule.activity.isFinishing)
+    }
+
+
+    @Test
     fun test_right_answer() {
         activityRule.launchActivity(Intent())
         val correctAnswer = testQuiz.answers.filter { it.right }.first()
@@ -95,8 +100,9 @@ class QuizTest {
 
     private fun withGradientDrawable(resourceId: Int): Matcher<View> {
         return object : BoundedMatcher<View, TextView>(TextView::class.java) {
+
             override fun describeTo(description: Description) {
-                description.appendText("has gradient drawable resource " + resourceId)
+                description.appendText("resource: $resourceId")
             }
 
             public override fun matchesSafely(textView: TextView): Boolean {
