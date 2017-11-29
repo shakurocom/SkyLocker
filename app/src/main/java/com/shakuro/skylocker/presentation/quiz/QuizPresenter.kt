@@ -9,7 +9,6 @@ import com.shakuro.skylocker.extension.addTo
 import com.shakuro.skylocker.model.quiz.QuizBgImageLoader
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.presentation.common.BasePresenter
-import com.shakuro.skylocker.system.RingStateManager
 import com.shakuro.skylocker.system.SchedulersProvider
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
@@ -18,16 +17,13 @@ import javax.inject.Inject
 @InjectViewState
 class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
                                         val quizBgImageLoader: QuizBgImageLoader,
-                                        val ringStateManager: RingStateManager,
                                         val schedulersProvider: SchedulersProvider) : BasePresenter<QuizView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        // skip quiz on phone ringing
-        ringStateManager.register()
-                .subscribe({ skipQuiz() },
-                        { error -> println("ringState error: ${error.localizedMessage}") })
+        // listen to skip quiz notification
+        quizInteractor.registerSkipQuizListener { skipQuiz() }
                 .addTo(disposeOnDestroy)
 
         // show quiz

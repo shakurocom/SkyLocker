@@ -6,9 +6,9 @@ import android.telephony.TelephonyManager
 import io.reactivex.Observable
 import javax.inject.Inject
 
-class RingStateManager @Inject constructor(private val context: Context) {
+open class RingStateManager @Inject constructor(private val context: Context) {
 
-    fun register(): Observable<Unit> {
+    open fun getRingObservable(): Observable<Unit> {
         return Observable.create<Unit> { emitter ->
             try {
                 val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager

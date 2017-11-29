@@ -81,12 +81,12 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
     }
 
     override fun addAnswer(answer: Answer) {
-        val answerView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, this.flowLayout, false) as TextView
+        val answerView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, flowLayout, false) as TextView
         answerView.text = answer.text
         answerView.setOnClickListener {
             presenter.checkAnswer(answer, it)
         }
-        this.flowLayout.addView(answerView)
+        flowLayout.addView(answerView)
     }
 
     override fun updateSelectedAnswer(answer: Answer, answerView: View) {

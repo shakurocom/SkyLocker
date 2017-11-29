@@ -5,12 +5,15 @@ import com.shakuro.skylocker.entities.Quiz
 import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.model.skyeng.SkyEngRepository
 import com.shakuro.skylocker.model.skyeng.models.db.Meaning
+import com.shakuro.skylocker.system.RingStateManager
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
 import java.util.*
 import javax.inject.Inject
 
 open class QuizInteractor @Inject constructor(private val skyEngRepository: SkyEngRepository,
-                                         private val settingsRepository: SettingsRepository) {
+                                              private val settingsRepository: SettingsRepository,
+                                              private val ringStateManager: RingStateManager) {
 
     companion object {
         val ALTERNATIVES_COUNT_TO_SHOW = 3
@@ -32,6 +35,12 @@ open class QuizInteractor @Inject constructor(private val skyEngRepository: SkyE
                 throw Error(NO_QUIZES_ERROR)
             }
         }
+    }
+
+    open fun registerSkipQuizListener(listener: (Unit) -> Unit): Disposable {
+        // skip quiz event on phone ringing
+        return ringStateManager.getRingObservable()
+                .subscribe(listener, { error -> println("ringState error: ${error.localizedMessage}") })
     }
 
     private fun quizAnswers(meaning: Meaning): List<Answer> {

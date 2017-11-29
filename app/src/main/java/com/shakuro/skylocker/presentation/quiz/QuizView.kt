@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.view.View
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
+import com.arellomobile.mvp.viewstate.strategy.AddToEndStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.shakuro.skylocker.entities.Answer
 
@@ -14,6 +15,7 @@ interface QuizView : MvpView {
 
     fun clearAnswers()
 
+    @StateStrategyType(AddToEndStrategy::class)
     fun addAnswer(answer: Answer)
 
     fun updateSelectedAnswer(answer: Answer, answerView: View)

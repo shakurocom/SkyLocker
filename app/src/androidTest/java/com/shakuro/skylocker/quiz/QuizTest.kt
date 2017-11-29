@@ -11,9 +11,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.TextView
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import com.shakuro.skylocker.R
 import com.shakuro.skylocker.di.Scopes
 import com.shakuro.skylocker.entities.Answer
@@ -21,6 +19,7 @@ import com.shakuro.skylocker.entities.Quiz
 import com.shakuro.skylocker.model.quiz.QuizInteractor
 import com.shakuro.skylocker.presentation.quiz.QuizActivity
 import io.reactivex.Single
+import io.reactivex.subjects.PublishSubject
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -33,8 +32,8 @@ import toothpick.config.Module
 @RunWith(AndroidJUnit4::class)
 class QuizTest {
 
-    lateinit var testInteractor: QuizInteractor
     lateinit var testQuiz: Quiz
+    val mockRingObservable: PublishSubject<Unit> = PublishSubject.create<Unit>()
 
     @Before
     fun before() {
@@ -43,14 +42,20 @@ class QuizTest {
                 .toList()
         testQuiz = Quiz("text", "definition", answers)
 
-        testInteractor = mock<QuizInteractor>()
         Toothpick.openScopes(Scopes.APP_SCOPE, Scopes.SKY_ENG_SCOPE, Scopes.QUIZ_SCOPE)
                 .installTestModules(object : Module() {
                     init {
-                        bind(QuizInteractor::class.java).toInstance(testInteractor)
+                        bind(QuizInteractor::class.java).toInstance(mock<QuizInteractor>() {
+                            // mocking getQuiz()
+                            on { getQuiz() } doReturn Single.just(testQuiz)
+
+                            // mocking registerSkipQuizListener()
+                            val callbackCaptor = argumentCaptor<(Unit) -> Unit>()
+                            doAnswer { mockRingObservable.subscribe(callbackCaptor.firstValue) }
+                                    .whenever(it).registerSkipQuizListener(callbackCaptor.capture())
+                        })
                     }
                 })
-        whenever(testInteractor.getQuiz()) doReturn Single.just(testQuiz)
     }
 
     @After
@@ -81,6 +86,14 @@ class QuizTest {
         Assert.assertTrue(activityRule.activity.isFinishing)
     }
 
+    @Test
+    fun test_skip_on_ring() {
+        activityRule.launchActivity(Intent())
+        // make ring
+        mockRingObservable.onNext(Unit)
+        // assert quiz skipped
+        Assert.assertTrue(activityRule.activity.isFinishing)
+    }
 
     @Test
     fun test_right_answer() {
