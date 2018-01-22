@@ -108,6 +108,9 @@ class SettingsTest {
         // Check, if disconnect button is active, and connect button is disappeared
         onView(withId(R.id.disconnectButton)).check(matches(isDisplayed()))
         onView(withId(R.id.connectButton)).check(matches(not(isDisplayed())))
+
+        // User email at view
+        onView(withId(R.id.userTextView)).check(matches(withText(testUser.email)));
     }
 
     fun setChecked(checked: Boolean): ViewAction {
