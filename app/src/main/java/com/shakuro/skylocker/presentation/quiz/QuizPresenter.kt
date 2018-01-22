@@ -48,6 +48,9 @@ class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
     fun checkAnswer(answer: Answer, answerView: View) {
         viewState.disableControls()
         viewState.updateSelectedAnswer(answer, answerView)
+        if(!answer.right) {
+            viewState.showRightAnswer()
+        }
 
         val delay = if (answer.right) 500L else 1000L
         Observable.timer(delay, TimeUnit.MILLISECONDS)
