@@ -17,16 +17,16 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import javax.inject.Inject
 
-class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDictionaryApi,
-                                           private val userApi: SkyEngUserApi,
-                                           private val daoSession: DaoSession) {
+open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDictionaryApi,
+                                                private val userApi: SkyEngUserApi,
+                                                private val daoSession: DaoSession) {
     private val MIN_ALTERNATIVES_COUNT = 3
 
     companion object {
         const val DB_FILE_NAME = "skylocker-db"
     }
 
-    fun refreshUserMeanings(email: String, token: String, callback: (User?, Throwable?) -> Unit) {
+    open fun refreshUserMeanings(email: String, token: String, callback: (User?, Throwable?) -> Unit) {
         userApi.userMeanings(email, token).enqueue(object : Callback<List<SkyEngUserMeaning>> {
 
             override fun onResponse(call: Call<List<SkyEngUserMeaning>>?, response: Response<List<SkyEngUserMeaning>>?) {
@@ -83,7 +83,7 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
         }
     }
 
-    fun randomMeaning(useTop1000Words: Boolean, useUserWords: Boolean): Meaning? {
+    open fun randomMeaning(useTop1000Words: Boolean, useUserWords: Boolean): Meaning? {
         val user = activeUser()
         val builder = daoSession.meaningDao.queryBuilder()
 
@@ -96,11 +96,11 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
         return builder.list()?.firstOrNull()
     }
 
-    fun meaningsExist(useTop1000Words: Boolean, useUserWords: Boolean): Boolean {
+    open fun meaningsExist(useTop1000Words: Boolean, useUserWords: Boolean): Boolean {
         return (randomMeaning(useTop1000Words, useUserWords) != null)
     }
 
-    fun activeUser(): User? {
+    open fun activeUser(): User? {
         return daoSession.userDao.loadAll()?.firstOrNull()
     }
 

@@ -27,4 +27,6 @@ interface QuizView : MvpView {
     fun setQuizDefinition(definition: String)
 
     fun disableControls()
+
+    fun showRightAnswer()
 }

@@ -82,6 +82,7 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
     override fun addAnswer(answer: Answer) {
         val answerView = LayoutInflater.from(this.flowLayout.context).inflate(R.layout.answer_textview, flowLayout, false) as TextView
         answerView.text = answer.text
+        answerView.tag = answer
         answerView.setOnClickListener {
             presenter.checkAnswer(answer, it)
         }
@@ -92,6 +93,16 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
         val answerBackground = if (answer.right) R.drawable.correct_answer_bg else R.drawable.wrond_answer_bg
         answerView.setBackgroundResource(answerBackground)
         (answerView as? TextView)?.setTextColor(Color.WHITE)
+    }
+
+    override fun showRightAnswer() {
+        for (i in 0..flowLayout.childCount - 1) {
+            val answerView = flowLayout.getChildAt(i)
+            val tag = answerView.tag
+            if (tag is Answer && tag.right) {
+                updateSelectedAnswer(tag, answerView)
+            }
+        }
     }
 
     override fun disableControls() {
