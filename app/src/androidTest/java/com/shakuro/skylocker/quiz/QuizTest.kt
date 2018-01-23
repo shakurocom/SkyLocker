@@ -28,7 +28,6 @@ import org.junit.runner.RunWith
 import toothpick.Toothpick
 import toothpick.config.Module
 
-
 @RunWith(AndroidJUnit4::class)
 class QuizTest {
 

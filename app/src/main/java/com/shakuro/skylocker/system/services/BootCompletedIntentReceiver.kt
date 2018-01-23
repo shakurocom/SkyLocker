@@ -8,7 +8,6 @@ import com.shakuro.skylocker.model.settings.SettingsRepository
 import toothpick.Toothpick
 import javax.inject.Inject
 
-
 class BootCompletedIntentReceiver : BroadcastReceiver() {
 
     @Inject

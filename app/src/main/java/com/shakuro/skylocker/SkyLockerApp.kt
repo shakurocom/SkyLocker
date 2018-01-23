@@ -6,7 +6,7 @@ import com.shakuro.skylocker.di.application.AppModule
 import com.shakuro.skylocker.di.application.SkyEngModule
 import toothpick.Toothpick
 
-class SkyLockerApp: Application() {
+class SkyLockerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()

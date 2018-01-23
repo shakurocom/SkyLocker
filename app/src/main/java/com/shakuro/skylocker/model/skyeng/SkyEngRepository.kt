@@ -2,7 +2,6 @@ package com.shakuro.skylocker.model.skyeng
 
 import android.content.Context
 import com.shakuro.skylocker.R
-import com.shakuro.skylocker.model.settings.SettingsRepository
 import com.shakuro.skylocker.model.skyeng.models.db.*
 import com.shakuro.skylocker.model.skyeng.models.skyeng.SkyEngError
 import com.shakuro.skylocker.model.skyeng.models.skyeng.SkyEngMeaning
@@ -28,7 +27,7 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
     }
 
     fun refreshUserMeanings(email: String, token: String, callback: (User?, Throwable?) -> Unit) {
-        userApi.userMeanings(email, token).enqueue(object: Callback<List<SkyEngUserMeaning>> {
+        userApi.userMeanings(email, token).enqueue(object : Callback<List<SkyEngUserMeaning>> {
 
             override fun onResponse(call: Call<List<SkyEngUserMeaning>>?, response: Response<List<SkyEngUserMeaning>>?) {
                 try {
@@ -116,7 +115,7 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
     }
 
     fun requestToken(email: String, callback: (Throwable?) -> Unit) {
-        userApi.requestToken(email).enqueue(object: Callback<Unit> {
+        userApi.requestToken(email).enqueue(object : Callback<Unit> {
 
             override fun onResponse(call: Call<Unit>?, response: Response<Unit>?) {
                 callback(null)
@@ -127,7 +126,6 @@ class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDict
             }
         })
     }
-
 
     private fun loadUserMeanings(user: User?, toLoad: MutableList<Long>, callback: (Throwable?) -> Unit) {
         val ids = toLoad.joinToString()
