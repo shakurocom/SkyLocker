@@ -60,7 +60,7 @@ class QuizBgImageLoader @Inject constructor(private val context: Context,
         val outWidth = (scale * inWidth).toInt()
         val outHeight = (scale * inHeight).toInt()
 
-        val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
+        val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

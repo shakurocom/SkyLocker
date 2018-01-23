@@ -8,7 +8,6 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import com.shakuro.skylocker.R
 
-
 class LockscreenService : Service() {
 
     private var mReceiver: BroadcastReceiver? = null

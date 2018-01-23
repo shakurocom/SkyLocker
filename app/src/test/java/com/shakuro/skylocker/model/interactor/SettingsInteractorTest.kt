@@ -24,7 +24,6 @@ class SettingsInteractorTest {
 
     private val schedulersProvider = TestSchedulers()
 
-
     @Before
     fun setUp() {
         skyEngRepository = mock<SkyEngRepository>()
@@ -161,7 +160,6 @@ class SettingsInteractorTest {
             assertError { it.message == TOKEN_ERROR }
         }
     }
-
 
     @Test
     fun disconnect_user() {
