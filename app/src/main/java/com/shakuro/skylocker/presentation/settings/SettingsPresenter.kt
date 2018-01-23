@@ -24,7 +24,7 @@ class SettingsPresenter @Inject constructor(val settingsInteractor: SettingsInte
 
         settingsInteractor.noQuizesObservable
                 .observeOn(schedulersProvider.ui())
-                .subscribe( { viewState.showMessage(getString(R.string.no_words_for_studying)) },
+                .subscribe({ viewState.showMessage(getString(R.string.no_words_for_studying)) },
                         { error -> showError(error) })
                 .addTo(disposeOnDestroy)
 
@@ -44,7 +44,7 @@ class SettingsPresenter @Inject constructor(val settingsInteractor: SettingsInte
                 .observeOn(schedulersProvider.ui())
                 .doOnSubscribe { viewState.showProgressDialog(getString(R.string.connecting_skyeng)) }
                 .doAfterTerminate { viewState.hideProgressDialog() }
-                .subscribe( { refreshConnectedState() },
+                .subscribe({ refreshConnectedState() },
                         { error -> showError(error) })
                 .addTo(disposeOnDestroy)
     }

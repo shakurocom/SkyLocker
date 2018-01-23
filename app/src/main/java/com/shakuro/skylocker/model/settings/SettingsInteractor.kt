@@ -71,9 +71,9 @@ class SettingsInteractor @Inject constructor(val skyEngRepository: SkyEngReposit
             checkLockServiceShouldStartOrStop()
         }
 
-    fun connectUser(email: String?, token: String?):Completable {
+    fun connectUser(email: String?, token: String?): Completable {
         return Completable.create { emitter ->
-            if (email == null || !EMAIL_ADDRESS.matcher(email).matches()){
+            if (email == null || !EMAIL_ADDRESS.matcher(email).matches()) {
                 emitter.onError(Error(resourceManager.getString(R.string.invalid_e_mail)))
                 return@create
             }

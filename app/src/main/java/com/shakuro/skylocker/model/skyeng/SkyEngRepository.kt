@@ -18,8 +18,8 @@ import java.io.InputStreamReader
 import javax.inject.Inject
 
 open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEngDictionaryApi,
-                                           private val userApi: SkyEngUserApi,
-                                           private val daoSession: DaoSession) {
+                                                private val userApi: SkyEngUserApi,
+                                                private val daoSession: DaoSession) {
     private val MIN_ALTERNATIVES_COUNT = 3
 
     companion object {
@@ -27,7 +27,7 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
     }
 
     open fun refreshUserMeanings(email: String, token: String, callback: (User?, Throwable?) -> Unit) {
-        userApi.userMeanings(email, token).enqueue(object: Callback<List<SkyEngUserMeaning>> {
+        userApi.userMeanings(email, token).enqueue(object : Callback<List<SkyEngUserMeaning>> {
 
             override fun onResponse(call: Call<List<SkyEngUserMeaning>>?, response: Response<List<SkyEngUserMeaning>>?) {
                 try {
@@ -115,7 +115,7 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
     }
 
     fun requestToken(email: String, callback: (Throwable?) -> Unit) {
-        userApi.requestToken(email).enqueue(object: Callback<Unit> {
+        userApi.requestToken(email).enqueue(object : Callback<Unit> {
 
             override fun onResponse(call: Call<Unit>?, response: Response<Unit>?) {
                 callback(null)
@@ -126,7 +126,6 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
             }
         })
     }
-
 
     private fun loadUserMeanings(user: User?, toLoad: MutableList<Long>, callback: (Throwable?) -> Unit) {
         val ids = toLoad.joinToString()

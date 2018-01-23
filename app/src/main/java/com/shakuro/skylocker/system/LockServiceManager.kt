@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import com.shakuro.skylocker.system.services.LockscreenService
-import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class LockServiceManager @Inject constructor(private val context: Context) {

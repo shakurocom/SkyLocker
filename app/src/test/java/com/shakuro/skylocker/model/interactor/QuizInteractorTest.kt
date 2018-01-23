@@ -37,7 +37,7 @@ class QuizInteractorTest {
             val testAlternativesCount = QuizInteractor.ALTERNATIVES_COUNT_TO_SHOW + 5
             on { alternatives } doReturn (1L..testAlternativesCount)
                     .toList()
-                    .map { Alternative(it, "text ${it}", "translation ${it}", it) }
+                    .map { Alternative(it, "text $it", "translation $it", it) }
         }
 
         quizInteractor = QuizInteractor(skyEngRepository, settingsRepository, ringStateManager)

@@ -53,7 +53,7 @@ class SettingsTest {
     @Test
     fun test_switch_on() {
         activityRule.launchActivity(Intent())
-        onView(withId(R.id.switchForActionBar)).perform(setChecked(true));
+        onView(withId(R.id.switchForActionBar)).perform(setChecked(true))
         Assert.assertTrue(lockServiceManager.isLockServiceActive())
     }
 
@@ -88,9 +88,7 @@ class SettingsTest {
             doAnswer {
                 callbackCaptor.firstValue.invoke(testUser, null)
                 on { activeUser() } doReturn testUser
-
-            }.whenever(it)
-                    .refreshUserMeanings(any(), any(), callbackCaptor.capture())
+            }.whenever(it).refreshUserMeanings(any(), any(), callbackCaptor.capture())
         }
 
         Toothpick.openScopes(Scopes.APP_SCOPE, Scopes.SKY_ENG_SCOPE)
@@ -110,7 +108,7 @@ class SettingsTest {
         onView(withId(R.id.connectButton)).check(matches(not(isDisplayed())))
 
         // User email at view
-        onView(withId(R.id.userTextView)).check(matches(withText(testUser.email)));
+        onView(withId(R.id.userTextView)).check(matches(withText(testUser.email)))
     }
 
     fun setChecked(checked: Boolean): ViewAction {

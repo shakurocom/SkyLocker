@@ -10,7 +10,6 @@ import com.shakuro.skylocker.presentation.quiz.QuizActivity
 import toothpick.Toothpick
 import javax.inject.Inject
 
-
 class LockscreenIntentReceiver : BroadcastReceiver() {
 
     @Inject

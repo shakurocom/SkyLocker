@@ -17,7 +17,6 @@ import com.shakuro.skylocker.entities.Answer
 import kotlinx.android.synthetic.main.activity_lockscreen.*
 import toothpick.Toothpick
 
-
 class QuizActivity : MvpAppCompatActivity(), QuizView {
 
     @InjectPresenter
@@ -36,7 +35,7 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
         window.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         super.onAttachedToWindow()
     }
-    
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lockscreen)

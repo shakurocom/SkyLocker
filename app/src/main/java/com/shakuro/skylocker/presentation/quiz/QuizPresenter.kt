@@ -48,7 +48,7 @@ class QuizPresenter @Inject constructor(val quizInteractor: QuizInteractor,
     fun checkAnswer(answer: Answer, answerView: View) {
         viewState.disableControls()
         viewState.updateSelectedAnswer(answer, answerView)
-        if(!answer.right) {
+        if (!answer.right) {
             viewState.showRightAnswer()
         }
 

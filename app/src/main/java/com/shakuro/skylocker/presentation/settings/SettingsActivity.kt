@@ -18,7 +18,6 @@ import com.shakuro.skylocker.di.settings.SettingsModule
 import kotlinx.android.synthetic.main.activity_settings.*
 import toothpick.Toothpick
 
-
 class SettingsActivity : MvpAppCompatActivity(), SettingsView {
     private var progressDialog: ProgressDialog? = null
     private var lockingSwitch: SwitchCompat? = null
