@@ -97,8 +97,10 @@ class QuizActivity : MvpAppCompatActivity(), QuizView {
 
     override fun showRightAnswer() {
         for (i in 0..flowLayout.childCount - 1) {
-            if ((flowLayout.getChildAt(i).tag as Answer).right) {
-                updateSelectedAnswer(flowLayout.getChildAt(i).tag as Answer, flowLayout.getChildAt(i))
+            val answerView = flowLayout.getChildAt(i)
+            val tag = answerView.tag
+            if (tag is Answer && tag.right) {
+                updateSelectedAnswer(tag, answerView)
             }
         }
     }
