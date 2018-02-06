@@ -18,7 +18,7 @@ class LockscreenService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
+        val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
         mReceiver = LockscreenIntentReceiver()
         registerReceiver(mReceiver, filter)
     }

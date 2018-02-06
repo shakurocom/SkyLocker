@@ -23,6 +23,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:noHistory="true"
+            android:theme="@style/Theme.AppCompat"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

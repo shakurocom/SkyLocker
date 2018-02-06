@@ -20,7 +20,7 @@ class LockscreenIntentReceiver : BroadcastReceiver() {
         val appScope = Toothpick.openScope(Scopes.APP_SCOPE)
         Toothpick.inject(this, appScope)
 
-        if (settingsRepository.lockingEnabled && intent.action == Intent.ACTION_SCREEN_ON) {
+        if (settingsRepository.lockingEnabled && intent.action == Intent.ACTION_USER_PRESENT) {
             val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             if (telephonyManager.callState == TelephonyManager.CALL_STATE_IDLE) {
                 startLockscreen(context)
