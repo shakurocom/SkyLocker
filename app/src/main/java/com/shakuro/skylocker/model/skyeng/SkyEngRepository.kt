@@ -47,7 +47,7 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
                             }
                         }
 
-                        assingUserMeanings(user, allUserMeanings)
+                        assignUserMeanings(user, allUserMeanings)
 
                         if (userMeaningsToLoad.size > 0) {
                             loadUserMeanings(user, userMeaningsToLoad) { error ->
@@ -73,9 +73,7 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
 
     fun requestUserMeaningsUpdate() {
         activeUser()?.let {
-            println("Refreshing started")
             refreshUserMeanings(it.email, it.token) { _, error ->
-                println("Refresh ended")
                 error?.let {
                     println("Error: ${error.localizedMessage}")
                 }
@@ -146,25 +144,34 @@ open class SkyEngRepository @Inject constructor(private val dictionaryApi: SkyEn
         })
     }
 
-    private fun assingUserMeanings(user: User?, userMeaningsIds: MutableList<Long>) {
-        if (user == null) {
-            return
+    private fun assignUserMeanings(user: User?, userMeaningsIds: List<Long>) {
+        if (user != null) {
+            daoSession.runInTx {
+                unbindNoMoreUserMeanings(user, userMeaningsIds)
+                bindExistingMeaningsToUser(user, userMeaningsIds)
+            }
         }
-        daoSession.runInTx {
-            // clean no more user meanings
-            val noMoreUserMeanings = daoSession.meaningDao.queryBuilder().where(
-                    MeaningDao.Properties.AddedByUserWithId.eq(user.id),
-                    MeaningDao.Properties.Id.notIn(userMeaningsIds)
-            ).list()
-            noMoreUserMeanings.forEach {
+    }
+
+    private fun unbindNoMoreUserMeanings(user: User, userMeaningsIds: List<Long>) {
+        val oldUserMeanings = daoSession.meaningDao.queryBuilder().where(
+                MeaningDao.Properties.AddedByUserWithId.eq(user.id)
+        ).list()
+        oldUserMeanings.forEach {
+            if (it.id !in userMeaningsIds) {
                 it.addedByUserWithId = 0
                 it.update()
             }
+        }
+    }
 
-            // bind already existing meanings to user
+    private fun bindExistingMeaningsToUser(user: User, userMeaningsIds: List<Long>) {
+        // update meanings by chunks to avoid "Too many SQL variables" error
+        val chunkSize = 100
+        userMeaningsIds.chunked(chunkSize).forEach { chunk ->
             val userMeanings = daoSession.meaningDao.queryBuilder().where(
                     MeaningDao.Properties.AddedByUserWithId.notEq(user.id),
-                    MeaningDao.Properties.Id.`in`(userMeaningsIds)
+                    MeaningDao.Properties.Id.`in`(chunk)
             ).list()
             userMeanings.forEach {
                 it.addedByUserWithId = user.id

@@ -15,7 +15,7 @@ repositories {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId 'com.shakuro.skylocker'
@@ -58,52 +58,52 @@ greendao {
 
 dependencies {
     // Support
-    compile 'com.android.support:support-v4:25.4.0'
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:support-v4:25.4.0'
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     // Kotlin
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.17'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.17'
     // ORM
-    compile 'org.greenrobot:greendao:3.2.2'
+    implementation 'org.greenrobot:greendao:3.2.2'
     // Retrofit
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile "com.squareup.retrofit2:converter-moshi:2.0.0"
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation "com.squareup.retrofit2:converter-moshi:2.0.0"
     // IO utils
-    compile "commons-io:commons-io:2.4"
+    implementation "commons-io:commons-io:2.4"
 
     // RxJava
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
     // MVP Moxy
-    compile 'com.arello-mobile:moxy-app-compat:1.5.3'
+    implementation 'com.arello-mobile:moxy-app-compat:1.5.3'
     kapt 'com.arello-mobile:moxy-compiler:1.5.3'
 
     // DI
-    compile "com.github.stephanenicolas.toothpick:toothpick-runtime:1.1.1"
+    implementation "com.github.stephanenicolas.toothpick:toothpick-runtime:1.1.1"
     kapt "com.github.stephanenicolas.toothpick:toothpick-compiler:1.1.1"
 
     // Unit tests
     // JUnit
-    testCompile "junit:junit:4.12"
+    testImplementation "junit:junit:4.12"
     // Mockito
-    testCompile "org.mockito:mockito-core:2.8.9"
-    testCompile 'org.mockito:mockito-inline:2.8.9'
+    testImplementation "org.mockito:mockito-core:2.8.9"
+    testImplementation 'org.mockito:mockito-inline:2.8.9'
     // Mockito Kotlin
-    testCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
+    testImplementation "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 
     // Android tests
     // annotations
-    androidTestCompile "com.android.support:support-annotations:25.4.0"
+    androidTestImplementation "com.android.support:support-annotations:25.4.0"
     // Espresso
-    androidTestCompile "com.android.support.test:runner:1.0.1"
-    androidTestCompile "com.android.support.test:rules:1.0.1"
-    androidTestCompile "com.android.support.test.espresso:espresso-core:3.0.1"
+    androidTestImplementation "com.android.support.test:runner:1.0.1"
+    androidTestImplementation "com.android.support.test:rules:1.0.1"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:3.0.1"
     // DI
-    androidTestCompile 'com.github.stephanenicolas.toothpick:toothpick-testing:1.1.1'
+    androidTestImplementation 'com.github.stephanenicolas.toothpick:toothpick-testing:1.1.1'
     // Mockito
-    androidTestCompile 'org.mockito:mockito-android:2.8.9'
+    androidTestImplementation 'org.mockito:mockito-android:2.8.9'
     // Mockito Kotlin
-    androidTestCompile "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
+    androidTestImplementation "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }
