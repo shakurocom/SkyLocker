@@ -21,8 +21,8 @@ android {
         applicationId 'com.shakuro.skylocker'
         minSdkVersion 11
         targetSdkVersion 9 // to work properly on devices with enabled system lock
-        versionCode 102
-        versionName "1.02"
+        versionCode 103
+        versionName "1.03"
 
         renderscriptTargetApi 21
         renderscriptSupportModeEnabled true
